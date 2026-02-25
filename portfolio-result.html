@@ -1,0 +1,63 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestoLab - Portfolio Results</title>
+  <link rel="stylesheet" href="styles.css?v=20260224v8" />
+</head>
+<body class="portfolio-builder-page">
+  <nav class="taskbar">
+    <a href="./index.html" class="brand">InvestoLab</a>
+    <div class="task-links">
+      <a href="./index.html">Overview</a>
+      <div class="nav-dropdown">
+        <a href="./valuation-lab.html" class="nav-dropdown-toggle active" aria-current="page">Valuation Lab</a>
+        <div class="nav-dropdown-menu">
+          <a href="./valuation.html">Investment Valuation</a>
+          <a href="./portfolio-builder.html">Portfolio Valuation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="./investotype.html" class="nav-dropdown-toggle">InvestoType</a>
+        <div class="nav-dropdown-menu">
+          <a href="./simulator.html">Simulation</a>
+          <a href="./quiz.html">Quiz</a>
+          <a href="./investor-types.html">Types</a>
+        </div>
+      </div>
+      <a href="./news.html">News</a>
+      <a href="./about.html">About</a>
+    </div>
+  </nav>
+
+  <header class="hero page-hero">
+    <h1>Portfolio Results</h1>
+    <p>Your portfolio valuation output based on current inputs.</p>
+  </header>
+
+  <main class="single-layout">
+    <section class="card valuation-card">
+      <div class="valuation-head">
+        <h2>Evaluation Output</h2>
+        <p id="portfolioResultMeta">Latest portfolio analysis.</p>
+      </div>
+      <p id="portfolioResultStatus" class="asset-help">Loading results...</p>
+      <div id="portfolioResult" class="valuation-result hidden"></div>
+      <div class="portfolio-actions-row">
+        <a class="cta-link" href="./portfolio-builder.html">Back To Portfolio Valuation</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-contact-btn" href="mailto:tgrkhwang@gmail.com" aria-label="Contact by email">Contact</a>
+    Copyright (c) 2026 InvestoLab. All rights reserved.
+  </footer>
+
+  <script src="portfolio-result.js?v=20260224v8"></script>
+</body>
+</html>
+
+
+

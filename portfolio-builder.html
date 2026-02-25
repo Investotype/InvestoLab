@@ -1,0 +1,94 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestoLab - Portfolio Valuation</title>
+  <link rel="stylesheet" href="styles.css?v=20260224v8" />
+</head>
+<body class="portfolio-builder-page">
+  <nav class="taskbar">
+    <a href="./index.html" class="brand">InvestoLab</a>
+    <div class="task-links">
+      <a href="./index.html">Overview</a>
+      <div class="nav-dropdown">
+        <a href="./valuation-lab.html" class="nav-dropdown-toggle active">Valuation Lab</a>
+        <div class="nav-dropdown-menu">
+          <a href="./valuation.html">Investment Valuation</a>
+          <a href="./portfolio-builder.html">Portfolio Valuation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="./investotype.html" class="nav-dropdown-toggle">InvestoType</a>
+        <div class="nav-dropdown-menu">
+          <a href="./simulator.html">Simulation</a>
+          <a href="./quiz.html">Quiz</a>
+          <a href="./investor-types.html">Types</a>
+        </div>
+      </div>
+      <a href="./news.html">News</a>
+      <a href="./about.html">About</a>
+    </div>
+  </nav>
+
+  <header class="hero page-hero">
+    <h1>Portfolio Valuation</h1>
+    <p>Add your holdings and quickly evaluate your full portfolio.</p>
+  </header>
+
+  <main class="single-layout">
+    <section class="card valuation-card">
+      <div class="valuation-head">
+        <h2>Portfolio Valuation</h2>
+        <p>Add investments, check a quick summary, and evaluate right away. No budget limit is applied.</p>
+      </div>
+
+      <form id="portfolioForm" class="portfolio-val-form">
+        <div class="portfolio-add-tool">
+          <label>
+            Investment
+            <div class="search-wrap">
+              <input id="portfolioAddQuery" type="text" placeholder="AAPL or Apple" autocomplete="off" />
+              <div id="portfolioAddDropdown" class="search-dropdown hidden"></div>
+            </div>
+          </label>
+          <button id="addPortfolioRowBtn" type="button">Add Investment</button>
+        </div>
+
+        <div id="portfolioRows" class="portfolio-rows"></div>
+
+        <div id="portfolioBriefSummary" class="commentary-card">
+          <h4>Summary</h4>
+          <p>Add at least one holding to see summary.</p>
+        </div>
+
+        <div class="portfolio-actions-row">
+          <button type="submit" id="evaluatePortfolioBtn" disabled>Evaluate Portfolio</button>
+        </div>
+      </form>
+
+      <p id="portfolioStatus" class="asset-help">Set at least one holding, then evaluate portfolio.</p>
+    </section>
+
+    <section class="card valuation-card">
+      <div class="valuation-head">
+        <h2>Need Single Investment Valuation?</h2>
+        <p>Go to Investment Valuation when you want to analyze one ticker in detail.</p>
+      </div>
+      <a class="cta-link" href="./valuation.html">Go To Valuation Lab</a>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-contact-btn" href="mailto:tgrkhwang@gmail.com" aria-label="Contact by email">Contact</a>
+    Copyright (c) 2026 InvestoLab. All rights reserved.
+  </footer>
+
+  <script src="portfolio-builder.js?v=20260224v8"></script>
+</body>
+</html>
+
+
+
+
+

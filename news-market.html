@@ -1,0 +1,60 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestoLab - Market News</title>
+  <link rel="stylesheet" href="styles.css?v=20260224n3" />
+</head>
+<body>
+  <nav class="taskbar">
+    <a href="./index.html" class="brand">InvestoLab</a>
+    <div class="task-links">
+      <a href="./index.html">Overview</a>
+      <div class="nav-dropdown">
+        <a href="./valuation-lab.html" class="nav-dropdown-toggle">Valuation Lab</a>
+        <div class="nav-dropdown-menu">
+          <a href="./valuation.html">Investment Valuation</a>
+          <a href="./portfolio-builder.html">Portfolio Valuation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="./investotype.html" class="nav-dropdown-toggle">InvestoType</a>
+        <div class="nav-dropdown-menu">
+          <a href="./simulator.html">Simulation</a>
+          <a href="./quiz.html">Quiz</a>
+          <a href="./investor-types.html">Types</a>
+        </div>
+      </div>
+      <a href="./news.html" class="active" aria-current="page">News</a>
+      <a href="./about.html">About</a>
+    </div>
+  </nav>
+
+  <header class="hero page-hero">
+    <h1>Market News</h1>
+    <p>Top market headlines with a quick sentiment summary.</p>
+  </header>
+
+  <main class="single-layout">
+    <section class="card valuation-card">
+      <div class="valuation-head">
+        <h2>Market News</h2>
+        <p id="marketNewsDateLabel">Loading market feed...</p>
+      </div>
+      <div id="marketNewsResult" class="valuation-result"></div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-contact-btn" href="mailto:tgrkhwang@gmail.com" aria-label="Contact by email">Contact</a>
+    Copyright (c) 2026 InvestoLab. All rights reserved.
+  </footer>
+
+  <script src="news-market.js?v=20260224n1"></script>
+</body>
+</html>
+
+
+
+

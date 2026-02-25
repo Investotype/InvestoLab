@@ -1,0 +1,60 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestoLab - Investment Of The Day</title>
+  <link rel="stylesheet" href="styles.css?v=20260224n4" />
+</head>
+<body data-news-period="day">
+  <nav class="taskbar">
+    <a href="./index.html" class="brand">InvestoLab</a>
+    <div class="task-links">
+      <a href="./index.html">Overview</a>
+      <div class="nav-dropdown">
+        <a href="./valuation-lab.html" class="nav-dropdown-toggle">Valuation Lab</a>
+        <div class="nav-dropdown-menu">
+          <a href="./valuation.html">Investment Valuation</a>
+          <a href="./portfolio-builder.html">Portfolio Valuation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="./investotype.html" class="nav-dropdown-toggle">InvestoType</a>
+        <div class="nav-dropdown-menu">
+          <a href="./simulator.html">Simulation</a>
+          <a href="./quiz.html">Quiz</a>
+          <a href="./investor-types.html">Types</a>
+        </div>
+      </div>
+      <a href="./news.html" class="active" aria-current="page">News</a>
+      <a href="./about.html">About</a>
+    </div>
+  </nav>
+
+  <header class="hero page-hero">
+    <h1>Investment Of The Day</h1>
+    <p>Today?셲 highlighted investment with score, recommendation, and key news.</p>
+  </header>
+
+  <main class="single-layout">
+    <section class="card valuation-card">
+      <div class="valuation-head">
+        <h2 id="investmentPeriodTitle">Investment Of The Day</h2>
+        <p id="newsDateLabel">Loading...</p>
+      </div>
+      <div id="newsResult" class="valuation-result"></div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-contact-btn" href="mailto:tgrkhwang@gmail.com" aria-label="Contact by email">Contact</a>
+    Copyright (c) 2026 InvestoLab. All rights reserved.
+  </footer>
+
+  <script src="news-investment-period.js?v=20260224n1"></script>
+</body>
+</html>
+
+
+
+

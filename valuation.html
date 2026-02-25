@@ -1,0 +1,84 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestoLab - Valuation Lab</title>
+  <link rel="stylesheet" href="styles.css?v=20260224v5" />
+</head>
+<body class="valuation-page">
+  <nav class="taskbar">
+    <a href="./index.html" class="brand">InvestoLab</a>
+    <div class="task-links">
+      <a href="./index.html">Overview</a>
+      <div class="nav-dropdown">
+        <a href="./valuation-lab.html" class="nav-dropdown-toggle active" aria-current="page">Valuation Lab</a>
+        <div class="nav-dropdown-menu">
+          <a href="./valuation.html">Investment Valuation</a>
+          <a href="./portfolio-builder.html">Portfolio Valuation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="./investotype.html" class="nav-dropdown-toggle">InvestoType</a>
+        <div class="nav-dropdown-menu">
+          <a href="./simulator.html">Simulation</a>
+          <a href="./quiz.html">Quiz</a>
+          <a href="./investor-types.html">Types</a>
+        </div>
+      </div>
+      <a href="./news.html">News</a>
+      <a href="./about.html">About</a>
+    </div>
+  </nav>
+
+  <header class="hero page-hero">
+    <h1>Valuation Lab</h1>
+    <p>Evaluate one investment and get a clear Buy, Hold, or Sell recommendation.</p>
+  </header>
+
+  <main class="single-layout">
+    <section class="card valuation-card">
+      <div class="valuation-head">
+        <h2>Investment Valuation</h2>
+        <p>Search by ticker or company name. Example: <code>AAPL</code>, <code>TSLA</code>, <code>SPY</code>, <code>NVDA</code>.</p>
+      </div>
+      <form id="investmentValuationForm" class="valuation-form-grid">
+        <label>
+          <span class="field-label">Investment</span>
+          <div class="search-wrap">
+            <input id="valuationQuery" type="text" placeholder="Ticker or company name" autocomplete="off" required />
+            <div id="valuationSearchDropdown" class="search-dropdown hidden"></div>
+          </div>
+        </label>
+        <label>
+          <span class="field-label">As Of Date</span>
+          <input id="valuationDate" type="date" />
+        </label>
+        <button type="submit">Run Valuation</button>
+      </form>
+      <p id="valuationStatus" class="asset-help">Enter an investment and run valuation.</p>
+      <div id="valuationResult" class="valuation-result hidden"></div>
+    </section>
+
+    <section class="card valuation-card">
+      <div class="valuation-head">
+        <h2>Need Portfolio Valuation?</h2>
+        <p>Go to Portfolio Valuation to evaluate all your holdings together.</p>
+      </div>
+      <a class="cta-link" href="./portfolio-builder.html">Go To Portfolio Valuation</a>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-contact-btn" href="mailto:tgrkhwang@gmail.com" aria-label="Contact by email">Contact</a>
+    Copyright (c) 2026 InvestoLab. All rights reserved.
+  </footer>
+
+  <script src="valuation.js?v=20260224v5"></script>
+</body>
+</html>
+
+
+
+
+
