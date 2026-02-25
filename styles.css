@@ -4297,6 +4297,355 @@ footer {
   }
 }
 
+/* Enhanced Mobile Patches */
+@media (max-width: 768px) {
+  /* Taskbar mobile styles */
+  .taskbar {
+    padding: 0.6rem 0.8rem;
+    gap: 0.6rem;
+  }
+
+  .brand {
+    font-size: 0.95rem;
+  }
+
+  .task-links {
+    gap: 0.3rem;
+  }
+
+  .nav-dropdown-toggle {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .task-links a {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .taskbar-cta {
+    width: 100%;
+    text-align: center;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  /* Hero mobile styles */
+  .hero {
+    padding: 1.5rem 0.8rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+
+  /* Layout mobile styles */
+  .layout,
+  .single-layout {
+    padding: 0 0.6rem 1.5rem;
+    gap: 0.8rem;
+  }
+
+  /* Card mobile styles */
+  .card {
+    padding: 0.9rem;
+    border-radius: 16px;
+  }
+
+  /* Form elements mobile */
+  .form-grid {
+    padding: 0 0.5rem;
+  }
+
+  input,
+  select,
+  button {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.9rem;
+  }
+
+  /* Home hero actions mobile */
+  .home-hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Feature home grid mobile */
+  .feature-home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-home-grid > .home-card {
+    min-height: 0;
+    padding: 1.1rem 1rem;
+  }
+
+  .news-home-grid > .home-card {
+    min-height: 0;
+    padding: 1.1rem 1rem;
+  }
+
+  .news-home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .news-home-grid > .card:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+
+  .feature-home-grid > .card:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+
+  /* Holdings table mobile */
+  .holdings-table {
+    overflow-x: auto;
+  }
+
+  .holdings-head,
+  .holdings-row {
+    min-width: 600px;
+  }
+
+  /* Valuation mobile */
+  .valuation-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .valuation-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .valuation-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .valuation-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .news-tailored-form {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-form-head {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-add-tool {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-rows {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-row {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-actions-row {
+    justify-content: center;
+  }
+
+  /* News period links mobile */
+  .news-period-links {
+    flex-wrap: wrap;
+  }
+
+  /* Quick picks mobile */
+  .quick-picks {
+    justify-content: center;
+  }
+
+  /* Sim section head mobile */
+  .sim-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Result highlights mobile */
+  .result-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  /* Modal mobile */
+  .trade-modal,
+  .portfolio-add-modal {
+    width: 100%;
+    max-width: 100%;
+    margin: 0.5rem;
+  }
+
+  .portfolio-add-modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Footer mobile */
+  footer {
+    padding: 0.6rem 0.8rem 1.2rem;
+  }
+
+  /* Search dropdown mobile */
+  .search-dropdown {
+    max-height: 180px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .taskbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .task-links {
+    justify-content: center;
+  }
+
+  .nav-dropdown-menu {
+    min-width: 160px;
+  }
+
+  .hero h1 {
+    font-size: 1.3rem;
+  }
+
+  .card {
+    padding: 0.75rem;
+    border-radius: 14px;
+  }
+
+  .valuation-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card canvas {
+    height: 200px;
+  }
+
+  .investor-axis-chip {
+    min-height: 70px;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .axis-chip-bar {
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
+  }
+
+  /* Smaller buttons on very small screens */
+  button {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .cta-link {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  /* Sim action row primary mobile */
+  .sim-action-row-primary {
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    padding: 0.4rem;
+  }
+
+  /* Portfolio added controls mobile */
+  .portfolio-added-controls {
+    grid-template-columns: 1fr;
+  }
+
+  /* Trade amount row mobile */
+  .trade-amount-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* Benchmark picker mobile */
+  .benchmark-picker {
+    flex-direction: column;
+  }
+
+  #benchmarkSelect {
+    min-width: 100%;
+  }
+
+  /* Quick amount wrap mobile */
+  .quick-amount-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  /* Asset grid mobile */
+  .asset-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Setup pie toggle row mobile */
+  .setup-pie-toggle-row {
+    flex-direction: column;
+  }
+
+  /* Timeflow ticks mobile */
+  .timeflow-ticks {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Sim add under mobile */
+  .sim-add-under {
+    padding: 0.5rem;
+  }
+
+  /* Share preview mode row mobile */
+  .share-preview-mode-row {
+    flex-wrap: wrap;
+  }
+}
+
+/* Touch-friendly improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .nav-dropdown-toggle,
+  .task-links a,
+  .taskbar-cta,
+  button,
+  .cta-link {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .card:hover,
+  .cta-link:hover,
+  button:hover,
+  .task-links a:hover,
+  .nav-dropdown-toggle:hover {
+    transform: none;
+  }
+
+  /* Disable some animations on mobile for performance */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* quiz styling */
 .quiz-question {
   font-size: 1.1rem;
