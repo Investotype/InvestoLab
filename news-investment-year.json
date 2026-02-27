@@ -1,0 +1,48 @@
+{
+  "asOfDate": "2026-02-27",
+  "period": "year",
+  "title": "Investment Of The Day",
+  "symbol": "SPY",
+  "alternatives": [
+    "QQQ",
+    "VTI",
+    "DIA"
+  ],
+  "investment": {
+    "symbol": "SPY",
+    "displayName": "SPDR S&P 500 ETF Trust",
+    "market": {
+      "price": 0,
+      "priceDate": "2026-02-27",
+      "trailingReturns": {
+        "d30": 0,
+        "d90": 0,
+        "d252": 0
+      },
+      "annualizedVolatility": 0
+    },
+    "valuation": {
+      "compositeScore": 50,
+      "label": "Neutral",
+      "summary3": [
+        "Static fallback pick. Configure STATIC_DATA_SOURCE_URL for live refresh."
+      ],
+      "recommendation": {
+        "action": "HOLD",
+        "confidence": 0.5,
+        "rationale": [
+          "Static data mode is active."
+        ]
+      }
+    },
+    "signals": {
+      "headlines": [
+        {
+          "title": "Static fallback investment feed.",
+          "publisher": "InvestoLab",
+          "date": "2026-02-27"
+        }
+      ]
+    }
+  }
+}

@@ -22,6 +22,22 @@
     return null;
   }
 
+  function mapApiToStaticData(url) {
+    if (typeof url !== 'string') return null;
+    if (url.startsWith('/api/news/market')) return '/data/news-market.json';
+    if (url.startsWith('/api/news/tailored')) return '/data/news-tailored.json';
+    if (url.startsWith('/api/news/investment-of-day')) {
+      const periodMatch = url.match(/[?&]period=([^&]+)/i);
+      const periodRaw = periodMatch ? decodeURIComponent(periodMatch[1] || '') : '';
+      const period = String(periodRaw || 'day').toLowerCase();
+      if (period === 'week') return '/data/news-investment-week.json';
+      if (period === 'month') return '/data/news-investment-month.json';
+      if (period === 'year') return '/data/news-investment-year.json';
+      return '/data/news-investment-day.json';
+    }
+    return null;
+  }
+
   window.fetch = (input, init) => {
     const url = resolveApiUrl(input);
     if (!url || !url.startsWith('/api/')) {
@@ -29,6 +45,15 @@
     }
 
     if (!apiBase && isGithubPages) {
+      const staticDataUrl = mapApiToStaticData(url);
+      if (staticDataUrl) {
+        return rawFetch(staticDataUrl, init).catch(() =>
+          jsonErrorResponse(
+            'Static data is unavailable right now. Try again in a moment.',
+            503
+          )
+        );
+      }
       return Promise.resolve(
         jsonErrorResponse(
           'Backend API is not configured for GitHub Pages. Set window.INVESTOLAB_API_BASE to your backend URL.'
