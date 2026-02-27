@@ -38,13 +38,27 @@
 
     const nextUrl = apiBase ? `${apiBase}${url}` : url;
     return rawFetch(nextUrl, init)
-      .then((response) => {
+      .then(async (response) => {
         const contentType = String(response.headers?.get('content-type') || '').toLowerCase();
         if (contentType.includes('text/html') || contentType.includes('application/xhtml+xml')) {
           return jsonErrorResponse(
             'API returned HTML instead of JSON. Check backend URL, deployment, and API route configuration.',
             502
           );
+        }
+
+        if (!contentType.includes('application/json')) {
+          try {
+            const probe = await response.clone().text();
+            if (/^\s*</.test(probe)) {
+              return jsonErrorResponse(
+                'API returned HTML instead of JSON. Check backend URL, deployment, and API route configuration.',
+                502
+              );
+            }
+          } catch (_error) {
+            // If probing fails, keep original response and let callers handle it.
+          }
         }
         return response;
       })
