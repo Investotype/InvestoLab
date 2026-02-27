@@ -4624,24 +4624,24 @@ footer {
   }
 
   .sim-action-row-primary {
-    position: static;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    width: 100%;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: auto;
     transform: none;
-    backdrop-filter: none;
-    box-shadow: none;
-    padding: 0.45rem;
-    margin-top: 0.4rem;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    padding: 0.38rem;
+    margin-top: 0;
   }
 
   .sim-action-row-primary.docked {
-    position: static;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    width: 100%;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: auto;
   }
 
   .sim-action-row-primary button {
@@ -4650,7 +4650,9 @@ footer {
   }
 
   .sim-topbar-card {
-    position: static;
+    position: sticky;
+    top: 56px;
+    z-index: 8;
   }
 
   .sim-action-bar button {

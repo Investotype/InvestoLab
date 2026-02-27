@@ -57,13 +57,6 @@
             top.classList.contains('active') || top.getAttribute('aria-current') === 'page'
           );
         }
-        node.querySelectorAll('.nav-dropdown-menu a').forEach((sub) => {
-          pushLink(
-            sub.getAttribute('href'),
-            sub.textContent,
-            sub.classList.contains('active') || sub.getAttribute('aria-current') === 'page'
-          );
-        });
       });
 
       mobilePrimaryLinks.innerHTML = links
