@@ -1,10 +1,11 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InvestoLab - InvestoType</title>
   <link rel="stylesheet" href="styles.css?v=20260224v2" />
+  <script src="nav.js?v=20260227" defer></script>
 </head>
 <body>
   <nav class="taskbar">
@@ -24,9 +25,20 @@
           <a href="./simulator.html">Simulation</a>
           <a href="./quiz.html">Quiz</a>
           <a href="./investor-types.html">Types</a>
+          <a href="./investotype-portfolio.html">AI Portfolio</a>
         </div>
       </div>
-      <a href="./news.html">News</a>
+            <div class="nav-dropdown">
+        <a href="./news.html" class="nav-dropdown-toggle">News</a>
+        <div class="nav-dropdown-menu">
+          <a href="./news-market.html">Market</a>
+          <a href="./news-tailored.html">Tailored</a>
+          <a href="./news-investment-day.html">Day Pick</a>
+          <a href="./news-investment-week.html">Week Pick</a>
+          <a href="./news-investment-month.html">Month Pick</a>
+          <a href="./news-investment-year.html">Year Pick</a>
+        </div>
+      </div>
       <a href="./about.html">About</a>
     </div>
   </nav>
@@ -53,6 +65,12 @@
       <h2>Investor Type Guide</h2>
       <p>See all investor types, what each means, and what to do next.</p>
       <a class="cta-link" href="./investor-types.html">Explore Types</a>
+    </section>
+
+    <section class="card home-card">
+      <h2>AI Portfolio Builder</h2>
+      <p>Get personalized investment recommendations based on your InvestoType, or tune the 3-axis bars and let AI recommend your target allocation.</p>
+      <a class="cta-link" href="./investotype-portfolio.html">Open AI Portfolio Builder</a>
     </section>
   </main>
 

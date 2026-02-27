@@ -2320,7 +2320,13 @@ function ensureTradeAmountModal() {
       <label>
         Amount
         <div class="trade-amount-row">
-          <input data-modal-input type="number" min="0" step="1" value="0" />
+          <div class="trade-amount-stepper">
+            <input data-modal-input type="number" min="0" step="1" value="0" />
+            <div class="trade-amount-stepper-actions">
+              <button type="button" class="ghost setup-step-btn" data-modal-minus aria-label="Decrease amount">-</button>
+              <button type="button" class="ghost setup-step-btn" data-modal-plus aria-label="Increase amount">+</button>
+            </div>
+          </div>
           <select data-modal-mode aria-label="Amount mode">
             <option value="dollars">USD</option>
             <option value="units">Units</option>
@@ -2343,6 +2349,8 @@ function ensureTradeAmountModal() {
   const currentMetric = backdrop.querySelector('[data-modal-current]');
   const targetMetric = backdrop.querySelector('[data-modal-target]');
   const unitPriceInline = backdrop.querySelector('[data-modal-unit-inline]');
+  const minusBtn = backdrop.querySelector('[data-modal-minus]');
+  const plusBtn = backdrop.querySelector('[data-modal-plus]');
   const cancel = backdrop.querySelector('[data-modal-cancel]');
   const sellAll = backdrop.querySelector('[data-modal-sell-all]');
   const confirm = backdrop.querySelector('[data-modal-confirm]');
@@ -2373,6 +2381,11 @@ function ensureTradeAmountModal() {
   const getModeMax = () => {
     const mode = String(modeSelect?.value || 'dollars');
     return mode === 'units' && Number.isFinite(current.maxUnits) ? Number(current.maxUnits) : Number(current.max || 0);
+  };
+
+  const getCurrentStep = () => {
+    const step = Number(input?.step || 0.01);
+    return Number.isFinite(step) && step > 0 ? step : 0.01;
   };
 
   const setDefaultAmountForMode = (mode) => {
@@ -2460,6 +2473,18 @@ function ensureTradeAmountModal() {
     updateLiveTargetMetric();
   });
   modeSelect?.addEventListener('change', updateModeView);
+  const stepAmount = (direction) => {
+    if (!input) return;
+    const max = Math.max(0, Number(getModeMax() || 0));
+    const raw = Number(input.value || 0);
+    const base = Number.isFinite(raw) ? raw : 0;
+    const next = round2(Math.max(0, Math.min(max, base + direction * getCurrentStep())));
+    input.value = next.toFixed(2);
+    clampToMax();
+    updateLiveTargetMetric();
+  };
+  minusBtn?.addEventListener('click', () => stepAmount(-1));
+  plusBtn?.addEventListener('click', () => stepAmount(1));
   cancel?.addEventListener('click', close);
   backdrop.addEventListener('click', (e) => {
     if (e.target === backdrop) close();
@@ -4426,10 +4451,10 @@ function updateBudgetPreview() {
     }
     if (meta) {
       const trend = getHoldingTrend(symbol);
-      const arrow = trend > 0 ? 'UP' : trend < 0 ? 'DOWN' : '';
+      const marker = trend > 0 ? '+' : trend < 0 ? '-' : '';
       const trendClass = trend > 0 ? 'up' : trend < 0 ? 'down' : 'flat';
       const priceText = price ? toCurrency(price) : '-';
-      meta.innerHTML = `Price: <span class="alloc-price-inline">${priceText} <span class="alloc-price-trend ${trendClass}" data-price-trend>${arrow}</span></span>${action ? ` | Action: ${action}` : ''}`;
+      meta.innerHTML = `Price: <span class="alloc-price-inline">${priceText} <span class="alloc-price-trend ${trendClass}" data-price-trend>${marker}</span></span>${action ? ` | Action: ${action}` : ''}`;
     }
     if (assetReasonEl) {
       assetReasonEl.textContent = `Why: ${assetReasonBySymbol[symbol] || 'No material move this period.'}`;
@@ -4617,17 +4642,16 @@ function renderPeriodInsights(insights) {
     if (!Number.isFinite(previous)) return null;
     const diff = Number(current || 0) - Number(previous || 0);
     const cls = diff > epsilon ? 'up' : diff < -epsilon ? 'down' : 'flat';
-    const arrow = cls === 'up' ? 'UP' : cls === 'down' ? 'DOWN' : 'FLAT';
     let pct = 0;
     if (Math.abs(previous || 0) > epsilon) pct = diff / Math.abs(previous);
     else if (Math.abs(current || 0) > epsilon) pct = Math.sign(diff || current);
-    return { cls, arrow, pct };
+    return { cls, pct };
   };
   const renderChange = (current, previous, epsilon = 1e-9) => {
     const meta = toChangeMeta(current, previous, epsilon);
     if (!meta) return '<span class="change-chip flat">-</span>';
-    const sign = meta.pct > 0 ? '+' : meta.pct < 0 ? '-' : '';
-    return `<span class="change-chip ${meta.cls}">${meta.arrow} ${sign}${toPercent(Math.abs(meta.pct))}</span>`;
+    const signedPct = meta.pct > 0 ? `+${toPercent(meta.pct)}` : meta.pct < 0 ? `-${toPercent(Math.abs(meta.pct))}` : toPercent(0);
+    return `<span class="change-chip ${meta.cls}">${signedPct}</span>`;
   };
 
   const prevPeriodReturn = Number(prevInsights?.periodReturn);

@@ -14,6 +14,9 @@ const MARKET_FETCH_BACKFILL_DAYS = 7;
 const MARKET_FETCH_FORWARD_DAYS = 3;
 
 app.use(express.json());
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 const sessions = new Map();
@@ -2150,6 +2153,28 @@ const TAILORED_NEWS_PROFILES = {
   }
 };
 
+const AXIS_CODE_TO_PROFILE_KEY = {
+  'A-I-R': 'the_quant',
+  'A-I-E': 'active_conviction_investor',
+  'A-E-R': 'tactical_trend_analyst',
+  'A-E-E': 'aggressive_reactive_trader',
+  'C-I-R': 'conservative_researcher',
+  'C-I-E': 'defensive_active_allocator',
+  'C-E-R': 'passive_rational_allocator',
+  'C-E-E': 'passive_emotional_allocator'
+};
+
+const PROFILE_DEFAULT_AXIS_SCORES = {
+  the_quant: { riskAggressive: 74, controlInternal: 76, reactivityEmotional: 30 },
+  active_conviction_investor: { riskAggressive: 82, controlInternal: 74, reactivityEmotional: 72 },
+  tactical_trend_analyst: { riskAggressive: 78, controlInternal: 36, reactivityEmotional: 32 },
+  aggressive_reactive_trader: { riskAggressive: 86, controlInternal: 34, reactivityEmotional: 78 },
+  conservative_researcher: { riskAggressive: 26, controlInternal: 74, reactivityEmotional: 26 },
+  defensive_active_allocator: { riskAggressive: 28, controlInternal: 72, reactivityEmotional: 74 },
+  passive_rational_allocator: { riskAggressive: 24, controlInternal: 30, reactivityEmotional: 24 },
+  passive_emotional_allocator: { riskAggressive: 22, controlInternal: 28, reactivityEmotional: 72 }
+};
+
 function normalizeInvestorTypeKey(rawType) {
   const raw = String(rawType || '')
     .trim()
@@ -2159,6 +2184,175 @@ function normalizeInvestorTypeKey(rawType) {
   if (!raw) return 'passive_rational_allocator';
   return TAILORED_NEWS_PROFILES[raw] ? raw : 'passive_rational_allocator';
 }
+
+function resolveInvestorTypeKey(rawType) {
+  const normalized = String(rawType || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  if (!normalized) return null;
+  if (TAILORED_NEWS_PROFILES[normalized]) return normalized;
+  for (const [key, profile] of Object.entries(TAILORED_NEWS_PROFILES)) {
+    const label = String(profile?.label || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    if (label === normalized) return key;
+  }
+  return null;
+}
+
+function finalizePctList(rows) {
+  const clean = rows
+    .map((row) => ({
+      ...row,
+      weight: Math.max(0, Number(row?.weight || 0))
+    }))
+    .filter((row) => row.weight > 0.01);
+  const rounded = clean.map((row) => ({ ...row, weight: Math.round(row.weight * 10) / 10 }));
+  const total = rounded.reduce((sum, row) => sum + row.weight, 0);
+  const diff = Math.round((100 - total) * 10) / 10;
+  if (rounded.length && Math.abs(diff) > 0.01) {
+    let maxIdx = 0;
+    for (let i = 1; i < rounded.length; i += 1) {
+      if (rounded[i].weight > rounded[maxIdx].weight) maxIdx = i;
+    }
+    rounded[maxIdx].weight = Math.max(0, Math.round((rounded[maxIdx].weight + diff) * 10) / 10);
+  }
+  return rounded;
+}
+
+function buildInvestoTypePortfolioDraft({ typeKey, axisScores }) {
+  const profile = TAILORED_NEWS_PROFILES[typeKey] || TAILORED_NEWS_PROFILES.passive_rational_allocator;
+  const risk = clamp(Number(axisScores?.riskAggressive || 50), 0, 100);
+  const control = clamp(Number(axisScores?.controlInternal || 50), 0, 100);
+  const emotional = clamp(Number(axisScores?.reactivityEmotional || 50), 0, 100);
+  const rational = 100 - emotional;
+
+  const usEquity = clamp(24 + risk * 0.5 + control * 0.06 - emotional * 0.05, 18, 78);
+  const intlEquity = clamp(7 + (100 - risk) * 0.08 + rational * 0.05, 6, 22);
+  const alternatives = clamp(2 + risk * 0.09 + emotional * 0.03, 2, 16);
+  const cash = clamp(2 + (100 - risk) * 0.12 + emotional * 0.06 + (100 - control) * 0.03, 2, 22);
+  const bonds = Math.max(6, 100 - usEquity - intlEquity - alternatives - cash);
+
+  const allocation = finalizePctList([
+    { bucket: 'US Equity', weight: usEquity },
+    { bucket: 'International Equity', weight: intlEquity },
+    { bucket: 'Bonds', weight: bonds },
+    { bucket: 'Alternatives', weight: alternatives },
+    { bucket: 'Cash', weight: cash }
+  ]);
+
+  const basket = [];
+  const symbols = Array.isArray(profile.symbols) ? profile.symbols : [];
+  const first = symbols[0] || 'SPY';
+  const second = symbols[1] || 'QQQ';
+  const third = symbols[2] || 'VTI';
+  const altSymbol = risk >= 65 ? 'BTC-USD' : 'GLD';
+  const bondSymbol = risk >= 60 ? 'BND' : 'AGG';
+  const cashSymbol = 'SHV';
+
+  const usRow = allocation.find((x) => x.bucket === 'US Equity');
+  const intlRow = allocation.find((x) => x.bucket === 'International Equity');
+  const bondsRow = allocation.find((x) => x.bucket === 'Bonds');
+  const altRow = allocation.find((x) => x.bucket === 'Alternatives');
+  const cashRow = allocation.find((x) => x.bucket === 'Cash');
+
+  const usWeight = Number(usRow?.weight || 0);
+  const usSplitA = usWeight * 0.46;
+  const usSplitB = usWeight * 0.32;
+  const usSplitC = Math.max(0, usWeight - usSplitA - usSplitB);
+
+  basket.push({ symbol: first, role: 'US Core', weight: usSplitA });
+  basket.push({ symbol: second, role: 'US Growth/Tactical', weight: usSplitB });
+  basket.push({ symbol: third, role: 'US Satellite', weight: usSplitC });
+  basket.push({ symbol: 'VXUS', role: 'International Diversifier', weight: Number(intlRow?.weight || 0) });
+  basket.push({ symbol: bondSymbol, role: 'Bond Buffer', weight: Number(bondsRow?.weight || 0) });
+  basket.push({ symbol: altSymbol, role: 'Alternative Hedge', weight: Number(altRow?.weight || 0) });
+  basket.push({ symbol: cashSymbol, role: 'Liquidity Reserve', weight: Number(cashRow?.weight || 0) });
+
+  const tickerMix = finalizePctList(basket);
+  const riskStyle = risk >= 50 ? 'aggressive' : 'conservative';
+  const controlStyle = control >= 50 ? 'active-control' : 'system-led';
+  const reactStyle = emotional >= 50 ? 'emotion-sensitive' : 'process-stable';
+  const withArticle = (word) => (/^[aeiou]/i.test(String(word)) ? `an ${word}` : `a ${word}`);
+  const rationale = [
+    `Risk axis (${risk.toFixed(0)}%) implies ${withArticle(riskStyle)} allocation stance.`,
+    `Control axis (${control.toFixed(0)}%) favors ${withArticle(controlStyle)} construction.`,
+    `Reactivity axis (${emotional.toFixed(0)}%) indicates ${withArticle(reactStyle)} behavior profile.`,
+    'This AI draft is a starting portfolio template, not investment advice. Rebalance monthly and keep single-position limits in place.'
+  ];
+
+  return {
+    profile,
+    axisScores: {
+      riskAggressive: Math.round(risk * 10) / 10,
+      controlInternal: Math.round(control * 10) / 10,
+      reactivityEmotional: Math.round(emotional * 10) / 10
+    },
+    allocation,
+    tickerMix,
+    rationale
+  };
+}
+
+app.post('/api/investotype/portfolio', (req, res) => {
+  try {
+    const rawType = req.body?.investorType;
+    const bodyAxis = req.body?.axisScores || {};
+    const riskRaw = Number(bodyAxis?.riskAggressive);
+    const controlRaw = Number(bodyAxis?.controlInternal);
+    const reactRaw = Number(bodyAxis?.reactivityEmotional);
+    const hasAxisInput = Number.isFinite(riskRaw) || Number.isFinite(controlRaw) || Number.isFinite(reactRaw);
+
+    let typeKey = resolveInvestorTypeKey(rawType);
+    let axisScores;
+
+    if (hasAxisInput) {
+      axisScores = {
+        riskAggressive: clamp(Number.isFinite(riskRaw) ? riskRaw : 50, 0, 100),
+        controlInternal: clamp(Number.isFinite(controlRaw) ? controlRaw : 50, 0, 100),
+        reactivityEmotional: clamp(Number.isFinite(reactRaw) ? reactRaw : 50, 0, 100)
+      };
+      const code =
+        (axisScores.riskAggressive >= 50 ? 'A' : 'C') +
+        '-' +
+        (axisScores.controlInternal >= 50 ? 'I' : 'E') +
+        '-' +
+        (axisScores.reactivityEmotional >= 50 ? 'E' : 'R');
+      typeKey = AXIS_CODE_TO_PROFILE_KEY[code] || typeKey || 'passive_rational_allocator';
+    } else {
+      typeKey = typeKey || 'passive_rational_allocator';
+      axisScores = PROFILE_DEFAULT_AXIS_SCORES[typeKey] || PROFILE_DEFAULT_AXIS_SCORES.passive_rational_allocator;
+    }
+
+    const draft = buildInvestoTypePortfolioDraft({ typeKey, axisScores });
+    const code =
+      (draft.axisScores.riskAggressive >= 50 ? 'A' : 'C') +
+      '-' +
+      (draft.axisScores.controlInternal >= 50 ? 'I' : 'E') +
+      '-' +
+      (draft.axisScores.reactivityEmotional >= 50 ? 'E' : 'R');
+
+    res.json({
+      ok: true,
+      generatedAt: toIsoDate(Date.now()),
+      profile: {
+        key: typeKey,
+        label: draft.profile.label,
+        axisCode: code
+      },
+      axisScores: draft.axisScores,
+      allocation: draft.allocation,
+      tickerMix: draft.tickerMix,
+      rationale: draft.rationale
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message || 'Failed to build portfolio draft.' });
+  }
+});
 
 function dedupeHeadlines(headlines, maxItems = 16) {
   const seen = new Set();
