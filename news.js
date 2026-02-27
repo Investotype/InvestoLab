@@ -55,11 +55,26 @@ function renderNewsSignalCards(sentiment) {
   `;
 }
 
+async function readJsonWithFallback(primaryUrl, fallbackUrl, failMessage) {
+  const response = await fetch(primaryUrl);
+  const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+  if (contentType.includes('application/json')) {
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.error || failMessage);
+    return data;
+  }
+  if (fallbackUrl) {
+    const fb = await fetch(fallbackUrl);
+    const fbData = await fb.json();
+    if (!fb.ok) throw new Error(fbData?.error || failMessage);
+    return fbData;
+  }
+  throw new Error(`${failMessage} (response was not valid JSON).`);
+}
+
 async function loadMarketNews() {
   try {
-    const response = await fetch('/api/news/market');
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error || 'Failed to load market news.');
+    const data = await readJsonWithFallback('/api/news/market', '/data/news-market.json', 'Failed to load market news.');
 
     marketNewsDateLabel.textContent = `Date: ${esc(data?.asOfDate || '')}`;
     marketNewsResult.innerHTML = `
@@ -82,9 +97,11 @@ async function loadMarketNews() {
 async function loadTailoredNews(typeKey) {
   try {
     tailoredNewsDateLabel.textContent = 'Loading tailored feed...';
-    const response = await fetch(`/api/news/tailored?type=${encodeURIComponent(typeKey || '')}`);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error || 'Failed to load tailored news.');
+    const data = await readJsonWithFallback(
+      `/api/news/tailored?type=${encodeURIComponent(typeKey || '')}`,
+      '/data/news-tailored.json',
+      'Failed to load tailored news.'
+    );
 
     tailoredNewsDateLabel.textContent = `Date: ${esc(data?.asOfDate || '')} | Profile: ${esc(data?.profile || '')}`;
     tailoredNewsResult.innerHTML = `
@@ -106,9 +123,11 @@ async function loadTailoredNews(typeKey) {
 
 async function loadInvestmentOfDay() {
   try {
-    const response = await fetch('/api/news/investment-of-day');
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error || 'Failed to load investment of the day.');
+    const data = await readJsonWithFallback(
+      '/api/news/investment-of-day',
+      '/data/news-investment-day.json',
+      'Failed to load investment of the day.'
+    );
 
     const investment = data?.investment || {};
     const valuation = investment?.valuation || {};

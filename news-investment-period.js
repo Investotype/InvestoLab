@@ -42,9 +42,32 @@ function renderHeadlineList(headlines, emptyText = 'No headlines available.') {
 
 async function loadInvestmentOfPeriod() {
   try {
-    const response = await fetch(`/api/news/investment-of-day?period=${encodeURIComponent(pagePeriod)}`);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error || 'Failed to load investment pick.');
+    const fallbackPathByPeriod = {
+      day: '/data/news-investment-day.json',
+      week: '/data/news-investment-week.json',
+      month: '/data/news-investment-month.json',
+      year: '/data/news-investment-year.json'
+    };
+    const readJsonWithFallback = async (primaryUrl, fallbackUrl) => {
+      const response = await fetch(primaryUrl);
+      const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.error || 'Failed to load investment pick.');
+        return data;
+      }
+      if (fallbackUrl) {
+        const fb = await fetch(fallbackUrl);
+        const fbData = await fb.json();
+        if (!fb.ok) throw new Error(fbData?.error || 'Failed to load investment pick.');
+        return fbData;
+      }
+      throw new Error('Investment pick response was not valid JSON.');
+    };
+    const data = await readJsonWithFallback(
+      `/api/news/investment-of-day?period=${encodeURIComponent(pagePeriod)}`,
+      fallbackPathByPeriod[pagePeriod] || fallbackPathByPeriod.day
+    );
 
     const investment = data?.investment || {};
     const valuation = investment?.valuation || {};
