@@ -1,10 +1,11 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InvestoLab - Investment Of The Week</title>
   <link rel="stylesheet" href="styles.css?v=20260224n4" />
+  <script src="nav.js?v=20260227" defer></script>
 </head>
 <body data-news-period="week">
   <nav class="taskbar">
@@ -24,16 +25,27 @@
           <a href="./simulator.html">Simulation</a>
           <a href="./quiz.html">Quiz</a>
           <a href="./investor-types.html">Types</a>
+          <a href="./investotype-portfolio.html">AI Portfolio</a>
         </div>
       </div>
-      <a href="./news.html" class="active" aria-current="page">News</a>
+            <div class="nav-dropdown">
+        <a href="./news.html" class="nav-dropdown-toggle active" aria-current="page">News</a>
+        <div class="nav-dropdown-menu">
+          <a href="./news-market.html">Market</a>
+          <a href="./news-tailored.html">Tailored</a>
+          <a href="./news-investment-day.html">Day Pick</a>
+          <a href="./news-investment-week.html">Week Pick</a>
+          <a href="./news-investment-month.html">Month Pick</a>
+          <a href="./news-investment-year.html">Year Pick</a>
+        </div>
+      </div>
       <a href="./about.html">About</a>
     </div>
   </nav>
 
   <header class="hero page-hero">
     <h1>Investment Of The Week</h1>
-    <p>This week?셲 highlighted investment with score, recommendation, and key news.</p>
+    <p>This week's highlighted investment with score, recommendation, and key news.</p>
   </header>
 
   <main class="single-layout">

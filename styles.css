@@ -26,7 +26,7 @@
 body {
   margin: 0;
   font-family: 'Manrope', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.45;
+  line-height: 1.78;
   color: var(--ink);
   background:
     radial-gradient(1300px 520px at 8% -10%, #e9fffa 0%, transparent 56%),
@@ -53,6 +53,55 @@ body {
   backdrop-filter: blur(12px);
 }
 
+.taskbar-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  border: 1px solid #d8e5f5;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  color: #0f172a;
+  border-radius: 9px;
+  padding: 0.46rem 0.72rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.taskbar-menu-toggle:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.taskbar-menu-toggle .burger-icon {
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+  position: relative;
+}
+
+.taskbar-menu-toggle .burger-icon::before,
+.taskbar-menu-toggle .burger-icon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+.taskbar-menu-toggle .burger-icon::before {
+  top: -5px;
+}
+
+.taskbar-menu-toggle .burger-icon::after {
+  top: 5px;
+}
+
 .brand {
   font-weight: 900;
   letter-spacing: -0.02em;
@@ -66,6 +115,29 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
+}
+
+.mobile-primary-links {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .taskbar-menu-toggle {
+    display: none !important;
+  }
+
+  .taskbar {
+    flex-wrap: wrap;
+  }
+
+  .task-links {
+    display: flex !important;
+    width: auto;
+  }
+
+  .mobile-primary-links {
+    display: none !important;
+  }
 }
 
 .nav-dropdown {
@@ -2241,6 +2313,41 @@ body.modal-open {
   align-items: center;
 }
 
+.trade-amount-stepper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.trade-amount-stepper input {
+  width: 100%;
+  text-align: right;
+}
+
+.trade-amount-stepper-actions {
+  display: inline-grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.22rem;
+  align-items: center;
+}
+
+.trade-amount-stepper-actions .setup-step-btn {
+  min-height: 38px;
+  min-width: 34px;
+  padding: 0.24rem 0.42rem;
+}
+
+.trade-amount-stepper input[type='number']::-webkit-outer-spin-button,
+.trade-amount-stepper input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.trade-amount-stepper input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 .trade-amount-row select {
   min-width: 84px;
 }
@@ -3068,8 +3175,8 @@ button.ghost:hover {
 
 .result-analytics {
   display: grid;
-  grid-template-columns: minmax(240px, 0.95fr) minmax(0, 2.05fr);
-  gap: 0.66rem;
+  grid-template-columns: minmax(300px, 0.95fr) minmax(0, 2.05fr);
+  gap: 1rem;
   align-items: stretch;
 }
 
@@ -3085,7 +3192,32 @@ button.ghost:hover {
 }
 
 .result-chart-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr);
+  gap: 1rem;
   margin-top: 0;
+}
+
+.result-chart-grid .chart-card {
+  padding: 0.85rem;
+}
+
+.chart-card-timeline canvas {
+  height: clamp(320px, 36vw, 460px);
+}
+
+.chart-card-allocation canvas {
+  height: clamp(280px, 32vw, 380px);
+}
+
+@media (max-width: 1200px) {
+  .result-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .result-chart-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .result-highlight {
@@ -3393,7 +3525,8 @@ button.ghost:hover {
 
 #axis3dCanvas,
 #portfolioAxis3dCanvas,
-#typesAxis3dCanvas {
+#typesAxis3dCanvas,
+#builderAxis3dCanvas {
   width: 100%;
   max-width: 520px;
   height: 240px;
@@ -3722,6 +3855,51 @@ button.ghost:hover {
   margin-top: 0;
   margin-bottom: 0.48rem;
   color: #334155;
+}
+
+.investotype-ai-card {
+  grid-column: 1 / -1;
+}
+
+.investotype-ai-form {
+  margin-top: 0.35rem;
+}
+
+.investotype-axis-wrap {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.investotype-axis-wrap .investor-axis-layout,
+.investotype-axis-wrap .investor-axis-left,
+.investotype-axis-wrap .investor-axis-right,
+.investotype-axis-wrap .axis-3d-stage {
+  width: 100%;
+}
+
+.investotype-builder-result {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.investotype-ai-card p,
+.investotype-ai-card li,
+.investotype-ai-card td,
+.investotype-ai-card th,
+.investotype-ai-card label {
+  line-height: 1.65;
+}
+
+.investotype-ai-card .investor-list li + li {
+  margin-top: 0.45rem;
+}
+
+.investotype-ai-card .valuation-table th,
+.investotype-ai-card .valuation-table td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .investor-alike-item p {
@@ -4101,216 +4279,47 @@ footer {
   }
 }
 
-@media (max-width: 860px) {
-  .budget-row {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-  }
-
-  .taskbar-cta {
-    width: 100%;
-    text-align: center;
-  }
-
-  .home-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .home-card,
-  .home-card-wide {
-    grid-column: 1 / -1;
-  }
-
-  .home-card {
-    text-align: center;
-  }
-
-  .home-card .cta-link {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .alloc-row {
-    grid-template-columns: 1fr;
-  }
-
-  .alloc-main {
-    flex-wrap: wrap;
-  }
-
-  .decision-box {
-    margin-left: 0;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .decision-trade-row {
-    grid-template-columns: 1fr;
-  }
-
-  .decision-metrics {
-    grid-template-columns: 1fr;
-  }
-
-  .alloc-quick-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .portfolio-controls {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .result-analytics {
-    grid-template-columns: 1fr;
-  }
-
-  .result-hero {
-    grid-template-columns: 1fr;
-  }
-
-  .investor-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .investor-card,
-  .investor-span-12,
-  .investor-span-6,
-  .investor-span-4 {
-    grid-column: 1 / -1;
-  }
-
-  .investor-axis-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .axis-chip-bar {
-    grid-template-columns: 56px minmax(0, 1fr) 56px;
-  }
-
-  #axis3dCanvas {
-    height: 216px;
-  }
-
-  .benchmark-row {
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-
-  .sim-analytics-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-head-row {
-    gap: 0.5rem;
-  }
-
-  .chart-mode-pick {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .sim-shortcuts-hint {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .sim-add-inline {
-    grid-template-columns: 1fr;
-  }
-
-  .asset-grid.simple-add {
-    grid-template-columns: 1fr;
-  }
-
-  .trade-modal-metrics {
-    grid-template-columns: 1fr;
-  }
-
-  .setup-alloc-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .setup-alloc-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .setup-alloc-row {
-    grid-template-columns: 1fr;
-  }
-
-  .setup-alloc-inputs {
-    grid-template-columns: 1fr;
-  }
-
-  .setup-remove-btn {
-    justify-self: start;
-  }
-
-  .sim-action-bar {
-    position: static;
-    backdrop-filter: none;
-    flex-wrap: wrap;
-    justify-content: stretch;
-  }
-
-  .sim-action-row-primary {
-    position: fixed;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    width: auto;
-    transform: none;
-    backdrop-filter: blur(2px);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
-  }
-
-  .sim-action-row-primary.docked {
-    position: static;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    width: 100%;
-  }
-
-  .sim-action-row-primary button {
-    width: 100%;
-    max-width: none;
-  }
-
-  .sim-topbar-card {
-    position: static;
-  }
-
-  .sim-action-bar button {
-    min-width: 0;
-    flex: 1 1 180px;
-  }
-
-  .split-action {
-    min-width: 0;
-    width: 100%;
-  }
-}
-
 /* Enhanced Mobile Patches */
 @media (max-width: 768px) {
   /* Taskbar mobile styles */
   .taskbar {
+    flex-wrap: nowrap;
     padding: 0.6rem 0.8rem;
     gap: 0.6rem;
   }
 
   .brand {
     font-size: 0.95rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .taskbar-menu-toggle {
+    display: inline-flex;
+    min-height: 44px;
   }
 
   .task-links {
-    gap: 0.3rem;
+    display: none;
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .taskbar.menu-open .mobile-primary-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .taskbar.menu-open {
+    flex-wrap: wrap;
+  }
+
+  .taskbar.menu-open .task-links {
+    display: grid;
   }
 
   .nav-dropdown-toggle {
@@ -4318,9 +4327,24 @@ footer {
     font-size: 0.8rem;
   }
 
-  .task-links a {
+  .task-links a,
+  .nav-dropdown-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 0.4rem 0.7rem;
     font-size: 0.8rem;
+  }
+
+  .taskbar.menu-open .nav-dropdown-menu {
+    position: static;
+    display: grid;
+    margin-top: 0.28rem;
+    min-width: 0;
+    box-shadow: none;
+    border-radius: 10px;
+    background: #f8fbff;
   }
 
   .taskbar-cta {
@@ -4368,10 +4392,217 @@ footer {
     font-size: 0.9rem;
   }
 
-  /* Home hero actions mobile */
+  /* Budget row mobile */
+  .budget-row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  /* Home grid mobile */
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-card,
+  .home-card-wide {
+    grid-column: 1 / -1;
+  }
+
+  .home-card {
+    text-align: center;
+  }
+
+  .home-card .cta-link {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .home-hero-actions {
     flex-direction: column;
     align-items: center;
+  }
+
+  /* Allocation rows mobile */
+  .alloc-row {
+    grid-template-columns: 1fr;
+  }
+
+  .alloc-main {
+    flex-wrap: wrap;
+  }
+
+  .decision-box {
+    margin-left: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .decision-trade-row {
+    grid-template-columns: 1fr;
+  }
+
+  .decision-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .alloc-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  /* Portfolio controls mobile */
+  .portfolio-controls {
+    grid-template-columns: 1fr;
+  }
+
+  /* Chart grid mobile */
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Result analytics mobile */
+  .result-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .result-hero {
+    grid-template-columns: 1fr;
+  }
+
+  /* Investor grid mobile */
+  .investor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .investor-card,
+  .investor-span-12,
+  .investor-span-6,
+  .investor-span-4 {
+    grid-column: 1 / -1;
+  }
+
+  .investor-axis-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .axis-chip-bar {
+    grid-template-columns: 56px minmax(0, 1fr) 56px;
+  }
+
+  #axis3dCanvas {
+    height: 216px;
+  }
+
+  /* Benchmark row mobile */
+  .benchmark-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  /* Sim analytics grid mobile */
+  .sim-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Chart head row mobile */
+  .chart-head-row {
+    gap: 0.5rem;
+  }
+
+  .chart-mode-pick {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Sim shortcuts hint mobile */
+  .sim-shortcuts-hint {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  /* Sim add inline mobile */
+  .sim-add-inline {
+    grid-template-columns: 1fr;
+  }
+
+  /* Asset grid mobile */
+  .asset-grid.simple-add {
+    grid-template-columns: 1fr;
+  }
+
+  /* Trade modal mobile */
+  .trade-modal-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  /* Setup allocation mobile */
+  .setup-alloc-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-alloc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-alloc-row {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-alloc-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-remove-btn {
+    justify-self: start;
+  }
+
+  /* Sim action bar mobile */
+  .sim-action-bar {
+    position: static;
+    backdrop-filter: none;
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .sim-action-row-primary {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    transform: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 0.45rem;
+    margin-top: 0.4rem;
+  }
+
+  .sim-action-row-primary.docked {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+  }
+
+  .sim-action-row-primary button {
+    width: 100%;
+    max-width: none;
+  }
+
+  .sim-topbar-card {
+    position: static;
+  }
+
+  .sim-action-bar button {
+    min-width: 0;
+    flex: 1 1 180px;
+  }
+
+  /* Split action mobile */
+  .split-action {
+    min-width: 0;
+    width: 100%;
   }
 
   /* Feature home grid mobile */
@@ -4408,7 +4639,7 @@ footer {
 
   .holdings-head,
   .holdings-row {
-    min-width: 600px;
+    min-width: 520px;
   }
 
   /* Valuation mobile */
@@ -4494,21 +4725,69 @@ footer {
   .search-dropdown {
     max-height: 180px;
   }
+
+  /* Global overlap protection */
+  body {
+    overflow-x: hidden;
+  }
+
+  .layout > *,
+  .single-layout > *,
+  .card,
+  .chart-card,
+  .investor-card,
+  .types-card,
+  .result-section,
+  .home-card,
+  .home-card-wide {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  img,
+  svg,
+  canvas,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .axis-3d-stage,
+  .types-axis3d-stage {
+    min-height: 200px;
+    height: auto;
+  }
+
+  .trade-modal-backdrop,
+  .portfolio-add-modal-backdrop,
+  .share-preview-backdrop {
+    padding: 0.55rem;
+  }
+
+  .trade-modal,
+  .portfolio-add-modal,
+  .share-preview-modal {
+    max-height: calc(100vh - 1.1rem);
+    overflow-y: auto;
+  }
+
+  .row,
+  .portfolio-actions-row,
+  .result-actions,
+  .investor-actions-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 
 /* Small mobile devices */
 @media (max-width: 480px) {
   .taskbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .task-links {
-    justify-content: center;
+    padding: 0.55rem 0.6rem;
   }
 
   .nav-dropdown-menu {
-    min-width: 160px;
+    min-width: 0;
   }
 
   .hero h1 {
@@ -5318,4 +5597,3 @@ footer {
     justify-content: center;
   }
 }
-

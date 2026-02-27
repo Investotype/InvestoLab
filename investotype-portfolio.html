@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestoLab - AI Portfolio Builder</title>
+  <link rel="stylesheet" href="styles.css?v=20260227ip1" />
+  <script src="nav.js?v=20260227" defer></script>
+</head>
+<body>
+  <nav class="taskbar">
+    <a href="./index.html" class="brand">InvestoLab</a>
+    <div class="task-links">
+      <a href="./index.html">Overview</a>
+      <div class="nav-dropdown">
+        <a href="./valuation-lab.html" class="nav-dropdown-toggle">Valuation Lab</a>
+        <div class="nav-dropdown-menu">
+          <a href="./valuation.html">Investment Valuation</a>
+          <a href="./portfolio-builder.html">Portfolio Valuation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="./investotype.html" class="nav-dropdown-toggle active" aria-current="page">InvestoType</a>
+        <div class="nav-dropdown-menu">
+          <a href="./simulator.html">Simulation</a>
+          <a href="./quiz.html">Quiz</a>
+          <a href="./investor-types.html">Types</a>
+          <a href="./investotype-portfolio.html">AI Portfolio</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="./news.html" class="nav-dropdown-toggle">News</a>
+        <div class="nav-dropdown-menu">
+          <a href="./news-market.html">Market</a>
+          <a href="./news-tailored.html">Tailored</a>
+          <a href="./news-investment-day.html">Day Pick</a>
+          <a href="./news-investment-week.html">Week Pick</a>
+          <a href="./news-investment-month.html">Month Pick</a>
+          <a href="./news-investment-year.html">Year Pick</a>
+        </div>
+      </div>
+      <a href="./about.html">About</a>
+    </div>
+  </nav>
+
+  <header class="hero page-hero">
+    <h1>AI Portfolio Builder</h1>
+    <p>Create a profile-fit portfolio from InvestoType or custom 3-axis scores.</p>
+  </header>
+
+  <main class="single-layout">
+    <section class="card investotype-ai-card">
+      <h2>Build Portfolio From Profile</h2>
+      <p>Choose your InvestoType directly or use the 3-axis bars to receive AI-powered investment recommendations, including target allocation, ticker mix, and rationale.</p>
+      <form id="investotypePortfolioForm" class="form-grid investotype-ai-form">
+        <label>
+          Input Method
+          <select id="investotypeInputMode">
+            <option value="type" selected>InvestoType</option>
+            <option value="axis">3-Axis Bars</option>
+          </select>
+        </label>
+
+        <label id="investotypeTypeWrap">
+          InvestoType
+          <select id="investotypeTypeSelect">
+            <option value="the_quant">The Quant</option>
+            <option value="active_conviction_investor">Active Conviction Investor</option>
+            <option value="tactical_trend_analyst">Tactical Trend Analyst</option>
+            <option value="aggressive_reactive_trader">Aggressive Reactive Trader</option>
+            <option value="conservative_researcher">Conservative Researcher</option>
+            <option value="defensive_active_allocator">Defensive Active Allocator</option>
+            <option value="passive_rational_allocator" selected>Passive Rational Allocator</option>
+            <option value="passive_emotional_allocator">Passive Emotional Allocator</option>
+          </select>
+        </label>
+
+        <div id="investotypeAxisWrap" class="investotype-axis-wrap hidden">
+          <div class="investor-axis-layout">
+            <div class="investor-axis-left">
+              <div class="investor-axis-chips">
+                <article class="investor-axis-chip">
+                  <strong>Risk Axis: <span id="builderRiskValue">50</span>%</strong>
+                  <div class="axis-chip-bar">
+                    <span>Conservative</span>
+                    <input id="builderRiskRange" class="axis-range-input" type="range" min="0" max="100" value="50" />
+                    <span>Aggressive</span>
+                  </div>
+                </article>
+                <article class="investor-axis-chip">
+                  <strong>Control Axis: <span id="builderControlValue">50</span>%</strong>
+                  <div class="axis-chip-bar">
+                    <span>Passive</span>
+                    <input id="builderControlRange" class="axis-range-input" type="range" min="0" max="100" value="50" />
+                    <span>Active</span>
+                  </div>
+                </article>
+                <article class="investor-axis-chip">
+                  <strong>Reactivity Axis: <span id="builderReactValue">50</span>%</strong>
+                  <div class="axis-chip-bar">
+                    <span>Rational</span>
+                    <input id="builderReactRange" class="axis-range-input" type="range" min="0" max="100" value="50" />
+                    <span>Emotional</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="investor-axis-right investor-cube-card">
+              <div class="investor-cube-head">
+                <h4>3D Axis Widget</h4>
+                <span id="builderCubeCode" class="investor-cube-code">C-E-R</span>
+              </div>
+              <p class="investor-cube-hint">Drag to rotate. Bars update the point position.</p>
+              <div id="builderAxis3dStage" class="axis-3d-stage">
+                <canvas id="builderAxis3dCanvas" width="560" height="360"></canvas>
+                <div id="builderAxis3dHoverTip" class="axis-3d-hover hidden"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="submit">Generate AI Portfolio</button>
+      </form>
+      <p id="investotypeBuilderStatus" class="asset-help hidden">Pick a mode and generate your AI portfolio.</p>
+
+      <div id="investotypeBuilderResult" class="investotype-builder-result hidden">
+        <div class="result-hero">
+          <div class="result-hero-main">
+            <p class="result-eyebrow">AI Draft</p>
+            <h3 id="builderTypeTitle">Portfolio Profile</h3>
+            <p id="builderTypeMeta" class="result-subline">Axis code and profile details will appear here.</p>
+          </div>
+          <span id="builderAxisCode" class="investor-cube-code">C-E-R</span>
+        </div>
+
+        <div class="investor-grid">
+          <section class="chart-card investor-card investor-span-6">
+            <h4>Asset Allocation</h4>
+            <ul id="builderAllocationList" class="investor-list"></ul>
+          </section>
+          <section class="chart-card investor-card investor-span-6">
+            <h4>Sample Ticker Mix</h4>
+            <div class="valuation-table-wrap">
+              <table class="valuation-table">
+                <thead>
+                  <tr>
+                    <th>Ticker</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Weight</th>
+                  </tr>
+                </thead>
+                <tbody id="builderTickerTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+          <section class="chart-card investor-card investor-span-12">
+            <h4>AI Rationale</h4>
+            <ul id="builderRationaleList" class="investor-list"></ul>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-contact-btn" href="mailto:tgrkhwang@gmail.com" aria-label="Contact by email">Contact</a>
+    Copyright (c) 2026 InvestoLab. All rights reserved.
+  </footer>
+
+  <script src="investotype.js?v=20260227a1"></script>
+</body>
+</html>

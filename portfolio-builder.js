@@ -353,7 +353,13 @@ function ensureAddHoldingModal() {
       <label>
         Amount
         <div class="trade-amount-row">
-          <input data-add-amount type="number" min="0" step="0.01" value="0" />
+          <div class="trade-amount-stepper">
+            <input data-add-amount type="number" min="0" step="0.01" value="0" />
+            <div class="trade-amount-stepper-actions">
+              <button type="button" class="ghost setup-step-btn" data-add-minus aria-label="Decrease amount">-</button>
+              <button type="button" class="ghost setup-step-btn" data-add-plus aria-label="Increase amount">+</button>
+            </div>
+          </div>
           <select data-add-mode aria-label="Amount mode">
             <option value="dollars" selected>USD</option>
             <option value="units">Units</option>
@@ -376,6 +382,8 @@ function ensureAddHoldingModal() {
   const amountInput = backdrop.querySelector('[data-add-amount]');
   const modeSelect = backdrop.querySelector('[data-add-mode]');
   const unitInline = backdrop.querySelector('[data-add-unit]');
+  const minusBtn = backdrop.querySelector('[data-add-minus]');
+  const plusBtn = backdrop.querySelector('[data-add-plus]');
   const cancelBtn = backdrop.querySelector('[data-add-cancel]');
   const confirmBtn = backdrop.querySelector('[data-add-confirm]');
 
@@ -395,6 +403,27 @@ function ensureAddHoldingModal() {
       return amount * state.unitPrice;
     }
     return amount;
+  };
+
+  const getStepSize = () => {
+    const mode = String(modeSelect?.value || 'dollars');
+    if (mode === 'units') return 1;
+    if (state.unitPrice > 0) return Math.max(0.01, Number(state.unitPrice.toFixed(2)));
+    return 0.01;
+  };
+
+  const syncInputStep = () => {
+    if (!amountInput) return;
+    amountInput.step = String(getStepSize());
+  };
+
+  const stepAmount = (direction) => {
+    if (!amountInput) return;
+    const raw = Number(amountInput.value || 0);
+    const base = Number.isFinite(raw) ? raw : 0;
+    const next = Math.max(0, Number((base + direction * getStepSize()).toFixed(2)));
+    amountInput.value = next.toFixed(2);
+    updatePlanned();
   };
 
   const updatePlanned = () => {
@@ -426,6 +455,7 @@ function ensureAddHoldingModal() {
       amountInput.value = Number(initial).toFixed(2);
     }
 
+    syncInputStep();
     updatePlanned();
     backdrop.classList.remove('hidden');
     document.body.classList.add('modal-open');
@@ -481,7 +511,12 @@ function ensureAddHoldingModal() {
     amountInput.value = Number(amount).toFixed(2);
     updatePlanned();
   });
-  modeSelect?.addEventListener('change', updatePlanned);
+  modeSelect?.addEventListener('change', () => {
+    syncInputStep();
+    updatePlanned();
+  });
+  minusBtn?.addEventListener('click', () => stepAmount(-1));
+  plusBtn?.addEventListener('click', () => stepAmount(1));
   cancelBtn?.addEventListener('click', close);
   confirmBtn?.addEventListener('click', confirm);
   backdrop.addEventListener('click', (event) => {

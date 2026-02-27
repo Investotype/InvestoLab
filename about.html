@@ -1,10 +1,11 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InvestoLab - About</title>
   <link rel="stylesheet" href="styles.css?v=20260224about2" />
+  <script src="nav.js?v=20260227" defer></script>
 </head>
 <body>
   <nav class="taskbar">
@@ -24,43 +25,55 @@
           <a href="./simulator.html">Simulation</a>
           <a href="./quiz.html">Quiz</a>
           <a href="./investor-types.html">Types</a>
+          <a href="./investotype-portfolio.html">AI Portfolio</a>
         </div>
       </div>
-      <a href="./news.html">News</a>
+            <div class="nav-dropdown">
+        <a href="./news.html" class="nav-dropdown-toggle">News</a>
+        <div class="nav-dropdown-menu">
+          <a href="./news-market.html">Market</a>
+          <a href="./news-tailored.html">Tailored</a>
+          <a href="./news-investment-day.html">Day Pick</a>
+          <a href="./news-investment-week.html">Week Pick</a>
+          <a href="./news-investment-month.html">Month Pick</a>
+          <a href="./news-investment-year.html">Year Pick</a>
+        </div>
+      </div>
       <a href="./about.html" class="active" aria-current="page">About</a>
     </div>
   </nav>
 
   <header class="hero page-hero">
     <h1>About InvestoLab</h1>
-    <p>What InvestoLab does and why it exists.</p>
+    <p>Why this website is needed and how it helps investors make better decisions.</p>
   </header>
 
   <main class="single-layout">
     <section class="card">
       <h2>Why InvestoLab Exists</h2>
-      <p>Investing has changed. It is no longer enough to just show data. Modern investing needs tools that <strong>interpret information</strong> and help users make decisions quickly.</p>
-      <p>InvestoLab is built for individual investors who want clear analysis, faster decisions, and practical outputs they can use right away.</p>
+      <p>Most investors do not fail because they cannot find information. They fail because there is <strong>too much conflicting information</strong> and not enough clear decision support.</p>
+      <p>Prices, headlines, social sentiment, and macro events move fast. Manually combining all of that into a consistent decision is hard, especially under stress.</p>
+      <p>InvestoLab exists to close that gap: it turns raw market noise into structured, explainable actions you can use.</p>
     </section>
 
     <section class="card">
-      <h2>Three Core Ideas Behind InvestoLab</h2>
+      <h2>The Real Problems It Solves</h2>
 
-      <h3>1. Contextual Analysis</h3>
-      <p>Price and volume are important, but they are not enough. Investors also need fast analysis of <strong>news, social media, reports, and real-time events</strong>.</p>
-      <p>InvestoLab combines these signals and turns them into simple outputs like scores, summaries, and recommendations.</p>
+      <h3>1. Information Overload</h3>
+      <p>Checking dozens of sources every day is not realistic for most people. InvestoLab summarizes market context into clear scores, risk signals, and recommendations.</p>
 
-      <h3>2. Hyper-Personalization</h3>
-      <p>Not every investor should get the same answer. Different users have different risk tolerance, goals, cash flow, and behavior.</p>
-      <p>InvestoLab supports personalized decisions through InvestoType and tailored analysis views.</p>
+      <h3>2. One-Size-Fits-All Advice</h3>
+      <p>Two investors can look at the same asset and need different actions. InvestoLab personalizes outputs by investor type and behavior profile instead of giving generic advice.</p>
 
-      <h3>3. Explainable AI</h3>
-      <p>A recommendation without explanation is not useful. If a tool says "buy" or "sell," users should understand why.</p>
-      <p>InvestoLab focuses on readable outputs: score breakdowns, signal summaries, risk context, and guidance in plain language.</p>
+      <h3>3. Emotional Decision Errors</h3>
+      <p>Many losses come from panic selling, overtrading, and chasing momentum. InvestoLab uses simulation and profile tools to help users understand and reduce these behavior risks.</p>
+
+      <h3>4. Black-Box Recommendations</h3>
+      <p>A signal is not useful if you cannot trust it. InvestoLab emphasizes explainable outputs so users can see why a recommendation was produced.</p>
     </section>
 
     <section class="card">
-      <h2>Industry Shift: Then vs Now</h2>
+      <h2>What Makes This Website Necessary Today</h2>
       <div class="valuation-table-wrap">
         <table class="valuation-table">
           <thead>
@@ -72,19 +85,19 @@
           </thead>
           <tbody>
             <tr>
-              <td>Main Inputs</td>
-              <td>Financial statements, charts</td>
-              <td>News, sentiment, real-time events</td>
+              <td>Market Inputs</td>
+              <td>Mostly delayed reports and price charts</td>
+              <td>24/7 flow of price, news, and sentiment signals</td>
             </tr>
             <tr>
-              <td>Service Model</td>
-              <td>One-size-fits-all recommendations</td>
-              <td>Personalized strategy by user profile</td>
+              <td>Investor Need</td>
+              <td>Static research and periodic review</td>
+              <td>Continuous, explainable decision support</td>
             </tr>
             <tr>
-              <td>Decision Style</td>
-              <td>Reactive and intuition-based</td>
-              <td>Proactive and data-based</td>
+              <td>Decision Quality</td>
+              <td>Emotion-heavy and inconsistent</td>
+              <td>Structured, personalized, and repeatable</td>
             </tr>
           </tbody>
         </table>
@@ -92,16 +105,17 @@
     </section>
 
     <section class="card">
-      <h2>What InvestoLab Gives You</h2>
-      <p>InvestoLab is designed for action, not just information.</p>
+      <h2>What You Can Do Here (Practical Value)</h2>
+      <p>InvestoLab is built to help you make decisions faster and with more discipline.</p>
       <ul class="investor-list">
-        <li>Evaluate a single investment with quant + news + social signals.</li>
-        <li>Evaluate a full portfolio with risk, diversification, and guidance.</li>
-        <li>Understand your behavior profile with InvestoType tools.</li>
-        <li>Use organized news views: market, tailored, and investment picks.</li>
-        <li>See explainable results instead of black-box outputs.</li>
+        <li>Evaluate one investment with quantitative, news, and sentiment context in one place.</li>
+        <li>Evaluate a full portfolio for return, risk, concentration, and diversification quality.</li>
+        <li>Identify your investor behavior pattern and generate profile-fit portfolio ideas.</li>
+        <li>Run simulations before committing capital to see tradeoffs and likely outcomes.</li>
+        <li>Use structured news views by market, profile, and period to avoid random headline chasing.</li>
+        <li>Review explainable outputs instead of receiving unexplained black-box signals.</li>
       </ul>
-      <p>In short, InvestoLab helps you move from reading information to making decisions.</p>
+      <p>Bottom line: this website is needed because investing is now high-speed and information-heavy. InvestoLab gives individual investors a practical decision system, not just more data.</p>
     </section>
   </main>
 
