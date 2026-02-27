@@ -3492,18 +3492,39 @@ function renderAssetSearchDropdown() {
 }
 
 function tokenToLabel(token) {
+  const fullNameBySymbol = {
+    SPY: 'SPDR S&P 500 ETF Trust',
+    QQQ: 'Invesco QQQ Trust',
+    AAPL: 'Apple Inc.',
+    MSFT: 'Microsoft Corporation',
+    NVDA: 'NVIDIA Corporation',
+    AMZN: 'Amazon.com, Inc.',
+    META: 'Meta Platforms, Inc.',
+    TSLA: 'Tesla, Inc.',
+    VTI: 'Vanguard Total Stock Market ETF',
+    VOO: 'Vanguard S&P 500 ETF',
+    VXUS: 'Vanguard Total International Stock ETF',
+    BND: 'Vanguard Total Bond Market ETF',
+    AGG: 'iShares Core U.S. Aggregate Bond ETF',
+    TLT: 'iShares 20+ Year Treasury Bond ETF',
+    GLD: 'SPDR Gold Shares',
+    SHV: 'iShares Short Treasury Bond ETF',
+    'BTC-USD': 'Bitcoin (USD)',
+    'ETH-USD': 'Ethereum (USD)'
+  };
+  const fullName = (symbol) => fullNameBySymbol[String(symbol || '').toUpperCase()] || symbol;
   if (token === 'CASH') return 'Cash';
   if (token === 'SAVINGS') return 'Savings';
-  if (token.startsWith('BOND:')) return `Bond ${token.split(':')[1]}`;
+  if (token.startsWith('BOND:')) return `Bond ${fullName(token.split(':')[1])}`;
   if (token.startsWith('LEVERAGE:')) {
     const p = token.split(':');
-    return `${p[2]}x ${p[1]}`;
+    return `${p[2]}x ${fullName(p[1])}`;
   }
   if (token.startsWith('CALL:')) {
     const p = token.split(':');
-    return `Call-like ${p[1]} x${p[2]}`;
+    return `Call-like ${fullName(p[1])} x${p[2]}`;
   }
-  return token;
+  return fullName(token);
 }
 
 async function buildAssetTokenFromInputs(type, rawSymbolInput, rawMultiplierInput) {
@@ -6865,7 +6886,5 @@ setReplayStatus('Replay: paused');
 updateHoldOnlyButton();
 updateAutoPlayButton();
 showSlide('setup');
-
-
 
 

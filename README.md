@@ -65,20 +65,66 @@ npm start
 
 If you host only the frontend on GitHub Pages, you still need a backend API host for `/api/*` routes.
 
-Set your backend URL on the page before app scripts run:
-```html
-<script>
-  window.INVESTOLAB_API_BASE = "https://your-backend-domain.com";
-</script>
-```
+Set your backend URL once in:
+- `public/config.js`
+- `GithubFolder/public/config.js`
 
-Alternative (browser console):
+Example:
 ```js
-localStorage.setItem('INVESTOLAB_API_BASE', 'https://your-backend-domain.com');
+window.INVESTOLAB_API_BASE = window.INVESTOLAB_API_BASE || "https://your-backend-domain.com";
 ```
 
 Then refresh the page.  
 Without API base setup, GitHub Pages will return a JSON error for API calls instead of crashing with `Unexpected token '<'`.
+
+## GitHub Pages Without Live Backend (Static Data Mode)
+
+For News pages, this repo supports static JSON fallback on GitHub Pages:
+- `/api/news/market` -> `/data/news-market.json`
+- `/api/news/tailored` -> `/data/news-tailored.json`
+- `/api/news/investment-of-day?period=*` -> `/data/news-investment-*.json`
+
+How it updates:
+- GitHub Action: `.github/workflows/refresh-static-news-data.yml`
+- Script: `scripts/refresh-static-news-data.js`
+- Output: `public/data/*.json` and `GithubFolder/public/data/*.json`
+
+Optional (for live pulls in the Action):
+- Add GitHub secret `STATIC_DATA_SOURCE_URL` (example: `https://investolab.onrender.com`)
+- Run workflow manually or wait for schedule (every 6 hours)
+
+## Public API Mode (No Backend)
+
+If `INVESTOLAB_API_BASE` is not set, the frontend now handles many `/api/*` routes directly using public market endpoints (Yahoo Finance) for:
+- symbol resolve (`/api/valuation/resolve`, `/api/assets/resolve`)
+- spot price (`/api/assets/price`)
+- investment valuation (`/api/valuation/investment`)
+- portfolio valuation (`/api/valuation/portfolio`)
+- InvestoType AI draft (`/api/investotype/portfolio`)
+- news pages (`/api/news/*`)
+- simulation flows (`/api/simulations/*`, including start/rebalance/trade/timeline/projection/finish/replay/briefing/search`)
+
+This lets GitHub Pages run core valuation/news/investotype flows without deploying your own backend.
+
+## Deploy Backend On Render
+
+This repo includes `render.yaml` for one-click backend deploy.
+
+1. Push this repository to GitHub.
+2. In Render, choose **New +** -> **Blueprint**.
+3. Select this GitHub repo and deploy.
+4. Render will create `investolab-api` and expose a URL like:
+   - `https://investolab-api.onrender.com`
+5. Verify backend health:
+   - `https://investolab-api.onrender.com/api/health`
+6. Put that URL into both config files:
+   - `public/config.js`
+   - `GithubFolder/public/config.js`
+7. Commit and push, then hard refresh GitHub Pages.
+
+Optional API keys in Render environment variables:
+- `ALPHA_VANTAGE_API_KEY`
+- `NEWSAPI_API_KEY`
 
 ## Public GitHub Checklist
 
