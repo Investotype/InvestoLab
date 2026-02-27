@@ -49,9 +49,26 @@ function renderNewsSignalCards(sentiment) {
 async function loadTailoredNews(typeKey) {
   try {
     tailoredNewsDateLabel.textContent = 'Loading tailored feed...';
-    const response = await fetch(`/api/news/tailored?type=${encodeURIComponent(typeKey || '')}`);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error || 'Failed to load tailored news.');
+    const readJsonWithFallback = async (primaryUrl, fallbackUrl) => {
+      const response = await fetch(primaryUrl);
+      const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.error || 'Failed to load tailored news.');
+        return data;
+      }
+      if (fallbackUrl) {
+        const fb = await fetch(fallbackUrl);
+        const fbData = await fb.json();
+        if (!fb.ok) throw new Error(fbData?.error || 'Failed to load tailored news.');
+        return fbData;
+      }
+      throw new Error('Tailored news response was not valid JSON.');
+    };
+    const data = await readJsonWithFallback(
+      `/api/news/tailored?type=${encodeURIComponent(typeKey || '')}`,
+      '/data/news-tailored.json'
+    );
 
     tailoredNewsDateLabel.textContent = `Date: ${esc(data?.asOfDate || '')} | Profile: ${esc(data?.profile || '')}`;
     tailoredNewsResult.innerHTML = `

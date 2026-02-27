@@ -77,6 +77,76 @@
     SMH: 'VanEck Semiconductor ETF',
     'BRK-B': 'Berkshire Hathaway Inc. Class B'
   };
+  const POPULAR_SYMBOL_RANK = new Map(
+    [
+      'SPY',
+      'QQQ',
+      'VOO',
+      'VTI',
+      'IVV',
+      'AAPL',
+      'MSFT',
+      'NVDA',
+      'AMZN',
+      'GOOGL',
+      'META',
+      'TSLA',
+      'BRK-B',
+      'JPM',
+      'XOM',
+      'BND',
+      'TLT',
+      'GLD',
+      'BTC-USD',
+      'ETH-USD'
+    ].map((symbol, idx) => [symbol, idx])
+  );
+  const SEARCH_UNIVERSE = [
+    'SPY',
+    'QQQ',
+    'VOO',
+    'VTI',
+    'IVV',
+    'AAPL',
+    'MSFT',
+    'NVDA',
+    'AMZN',
+    'GOOGL',
+    'META',
+    'TSLA',
+    'BRK-B',
+    'JPM',
+    'XOM',
+    'BND',
+    'AGG',
+    'TLT',
+    'GLD',
+    'SHV',
+    'VXUS',
+    'SCHD',
+    'VNQ',
+    'IWM',
+    'DIA',
+    'XLF',
+    'XLE',
+    'XLV',
+    'XLP',
+    'XLU',
+    'BTC-USD',
+    'ETH-USD',
+    'COIN',
+    'MSTR',
+    'SOXL',
+    'PLTR',
+    'JNJ',
+    'PG',
+    'KO',
+    'VIG',
+    'TIP',
+    'AVGO',
+    'AMD',
+    'SMH'
+  ];
 
   window.__INVESTOLAB_API_BASE = '';
   const rawFetch = window.fetch.bind(window);
@@ -96,6 +166,24 @@
   function fullNameForSymbol(symbol) {
     const key = normalizeSymbol(symbol);
     return SYMBOL_FULL_NAMES[key] || key;
+  }
+
+  function popularityRank(symbol) {
+    const key = normalizeSymbol(symbol);
+    return POPULAR_SYMBOL_RANK.has(key) ? POPULAR_SYMBOL_RANK.get(key) : Number.POSITIVE_INFINITY;
+  }
+
+  function searchScore(queryUpper, symbol, longname) {
+    const sym = String(symbol || '').toUpperCase();
+    const name = String(longname || '').toUpperCase();
+    if (sym === queryUpper) return 10000;
+    if (sym.startsWith(queryUpper)) return 9000 - sym.length;
+    if (name.startsWith(queryUpper)) return 8000 - name.length;
+    const idxSym = sym.indexOf(queryUpper);
+    if (idxSym >= 0) return 7000 - idxSym * 10 - sym.length;
+    const idxName = name.indexOf(queryUpper);
+    if (idxName >= 0) return 6000 - idxName * 6 - name.length;
+    return 0;
   }
 
   function jsonResponse(payload, status = 200) {
@@ -172,15 +260,35 @@
   async function yahooSearch(query, _quotesCount = 10, _newsCount = 0) {
     const q = String(query || '').trim().toUpperCase();
     if (!q) return { quotes: [], news: [] };
-    const watch = ['SPY', 'QQQ', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'TSLA', 'VTI', 'VOO', 'BND', 'GLD', 'BTC-USD'];
-    const pick = watch.filter((s) => s.includes(q)).slice(0, 8);
-    const quotes = (pick.length ? pick : [q]).map((sym) => ({
-      symbol: sym,
-      shortname: fullNameForSymbol(sym),
-      longname: fullNameForSymbol(sym),
-      exchange: 'NASDAQ',
-      quoteType: 'EQUITY'
-    }));
+    const candidates = SEARCH_UNIVERSE.map((sym) => {
+      const longname = fullNameForSymbol(sym);
+      return {
+        symbol: sym,
+        shortname: longname,
+        longname,
+        exchange: 'NASDAQ',
+        quoteType: 'EQUITY',
+        _score: searchScore(q, sym, longname),
+        _pop: popularityRank(sym)
+      };
+    }).filter((row) => row._score > 0);
+
+    const sorted = candidates.sort((a, b) => {
+      if (b._score !== a._score) return b._score - a._score;
+      if (a._pop !== b._pop) return a._pop - b._pop;
+      return String(a.symbol).localeCompare(String(b.symbol));
+    });
+
+    const quotes = sorted.slice(0, 12).map(({ _score, _pop, ...row }) => row);
+    if (!quotes.length) {
+      quotes.push({
+        symbol: q,
+        shortname: fullNameForSymbol(q),
+        longname: fullNameForSymbol(q),
+        exchange: 'NASDAQ',
+        quoteType: 'EQUITY'
+      });
+    }
     return { quotes, news: [] };
   }
 
