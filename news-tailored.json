@@ -1,0 +1,23 @@
+{
+  "asOfDate": "2026-02-27",
+  "profile": "PASSIVE_RATIONAL_ALLOCATOR",
+  "sentiment": {
+    "news": 0.5,
+    "social": 0.5,
+    "confidence": 0.5
+  },
+  "watchlist": [
+    "SPY",
+    "QQQ",
+    "VTI",
+    "BND"
+  ],
+  "headlines": [
+    {
+      "title": "Static fallback tailored feed. Configure STATIC_DATA_SOURCE_URL for live refresh.",
+      "symbol": "VTI",
+      "publisher": "InvestoLab",
+      "date": "2026-02-27"
+    }
+  ]
+}
