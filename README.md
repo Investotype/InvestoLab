@@ -61,6 +61,25 @@ npm start
 - `CALL:*` and `LEVERAGE:*` are simplified educational models.
 - This project is for educational use and is not financial advice.
 
+## GitHub Pages + API Setup
+
+If you host only the frontend on GitHub Pages, you still need a backend API host for `/api/*` routes.
+
+Set your backend URL on the page before app scripts run:
+```html
+<script>
+  window.INVESTOLAB_API_BASE = "https://your-backend-domain.com";
+</script>
+```
+
+Alternative (browser console):
+```js
+localStorage.setItem('INVESTOLAB_API_BASE', 'https://your-backend-domain.com');
+```
+
+Then refresh the page.  
+Without API base setup, GitHub Pages will return a JSON error for API calls instead of crashing with `Unexpected token '<'`.
+
 ## Public GitHub Checklist
 
 - Keep `node_modules/` out of version control (`.gitignore` included).

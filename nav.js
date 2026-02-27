@@ -1,6 +1,7 @@
 (() => {
   const mobileQuery = window.matchMedia('(max-width: 768px)');
   const taskbars = document.querySelectorAll('.taskbar');
+  let lastScrollY = window.scrollY || 0;
 
   taskbars.forEach((taskbar, index) => {
     const taskLinks = taskbar.querySelector('.task-links');
@@ -16,42 +17,66 @@
     menuButton.setAttribute('aria-controls', taskLinks.id);
     menuButton.setAttribute('aria-expanded', 'false');
     menuButton.setAttribute('aria-label', 'Toggle navigation menu');
-    menuButton.innerHTML = '<span class="burger-icon" aria-hidden="true"></span><span>Menu</span>';
+    menuButton.innerHTML = '<span class="burger-icon" aria-hidden="true"></span>';
     taskbar.insertBefore(menuButton, taskLinks);
+    menuButton.hidden = true;
+    menuButton.style.display = 'none';
 
-    const primaryLinks = document.createElement('div');
-    primaryLinks.className = 'mobile-primary-links';
-    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-    const pages = [
-      { href: './index.html', label: 'Overview', match: ['index.html', ''] },
-      { href: './valuation-lab.html', label: 'Valuation Lab', match: ['valuation-lab.html', 'valuation.html', 'portfolio-builder.html', 'portfolio-result.html'] },
-      { href: './investotype.html', label: 'InvestoType', match: ['investotype.html', 'simulator.html', 'quiz.html', 'investor-types.html'] },
-      { href: './news.html', label: 'News', match: ['news.html', 'news-market.html', 'news-tailored.html', 'news-investment-day.html', 'news-investment-week.html', 'news-investment-month.html', 'news-investment-year.html'] },
-      { href: './about.html', label: 'About', match: ['about.html'] }
-    ];
+    const navDropdowns = [...taskLinks.querySelectorAll('.nav-dropdown')];
 
-    primaryLinks.innerHTML = pages.map((page) => {
-      const activeClass = page.match.includes(currentPath) ? ' class="active"' : '';
-      const currentAttr = page.match.includes(currentPath) ? ' aria-current="page"' : '';
-      return `<a href="${page.href}"${activeClass}${currentAttr}>${page.label}</a>`;
-    }).join('');
-    taskLinks.prepend(primaryLinks);
+    const closeDropdowns = () => {
+      navDropdowns.forEach((dd) => dd.classList.remove('open'));
+    };
 
     const closeMenu = () => {
       taskbar.classList.remove('menu-open');
       menuButton.setAttribute('aria-expanded', 'false');
+      closeDropdowns();
     };
 
     const toggleMenu = () => {
+      if (!mobileQuery.matches) return;
       const isOpen = taskbar.classList.toggle('menu-open');
       menuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (!isOpen) closeDropdowns();
+    };
+
+    const syncViewportState = () => {
+      if (mobileQuery.matches) {
+        menuButton.hidden = false;
+        menuButton.style.display = 'inline-flex';
+      } else {
+        closeMenu();
+        taskbar.classList.remove('taskbar-hidden-mobile');
+        lastScrollY = window.scrollY || 0;
+        menuButton.hidden = true;
+        menuButton.style.display = 'none';
+      }
     };
 
     menuButton.addEventListener('click', toggleMenu);
 
+    navDropdowns.forEach((dropdown) => {
+      const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+      if (!toggle) return;
+      toggle.addEventListener('click', (event) => {
+        if (!mobileQuery.matches) return;
+        if (!taskbar.classList.contains('menu-open')) return;
+        const alreadyOpen = dropdown.classList.contains('open');
+        if (!alreadyOpen) {
+          event.preventDefault();
+          closeDropdowns();
+          dropdown.classList.add('open');
+          return;
+        }
+        closeDropdowns();
+      });
+    });
+
     taskLinks.addEventListener('click', (event) => {
       const clickedLink = event.target.closest('a');
       if (!clickedLink || !mobileQuery.matches) return;
+      if (clickedLink.classList.contains('nav-dropdown-toggle')) return;
       closeMenu();
     });
 
@@ -67,10 +92,29 @@
       }
     });
 
-    mobileQuery.addEventListener('change', (event) => {
-      if (!event.matches) {
-        closeMenu();
-      }
-    });
+    mobileQuery.addEventListener('change', syncViewportState);
+    syncViewportState();
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!mobileQuery.matches) return;
+        if (taskbar.classList.contains('menu-open')) {
+          taskbar.classList.remove('taskbar-hidden-mobile');
+          lastScrollY = window.scrollY || 0;
+          return;
+        }
+        const currentY = window.scrollY || 0;
+        const delta = currentY - lastScrollY;
+        const nearTop = currentY <= 8;
+        if (nearTop || delta < -2) {
+          taskbar.classList.remove('taskbar-hidden-mobile');
+        } else if (delta > 2) {
+          taskbar.classList.add('taskbar-hidden-mobile');
+        }
+        lastScrollY = currentY;
+      },
+      { passive: true }
+    );
   });
 })();
