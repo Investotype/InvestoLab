@@ -6,6 +6,7 @@
   taskbars.forEach((taskbar, index) => {
     const taskLinks = taskbar.querySelector('.task-links');
     if (!taskLinks) return;
+    taskbar.classList.add('taskbar-mobile-flat');
 
     if (!taskLinks.id) {
       taskLinks.id = `task-links-${index + 1}`;
@@ -23,6 +24,56 @@
     menuButton.style.display = 'none';
 
     const navDropdowns = [...taskLinks.querySelectorAll('.nav-dropdown')];
+    const mobilePrimaryLinks = document.createElement('div');
+    mobilePrimaryLinks.className = 'mobile-primary-links';
+    taskbar.insertBefore(mobilePrimaryLinks, taskLinks);
+
+    const buildMobileFlatLinks = () => {
+      const seen = new Set();
+      const links = [];
+      const pushLink = (href, label, active = false) => {
+        const h = String(href || '').trim();
+        const t = String(label || '').trim();
+        if (!h || !t || seen.has(h)) return;
+        seen.add(h);
+        links.push({ href: h, label: t, active: !!active });
+      };
+
+      [...taskLinks.children].forEach((node) => {
+        if (node.matches && node.matches('a')) {
+          pushLink(
+            node.getAttribute('href'),
+            node.textContent,
+            node.classList.contains('active') || node.getAttribute('aria-current') === 'page'
+          );
+          return;
+        }
+        if (!(node.classList && node.classList.contains('nav-dropdown'))) return;
+        const top = node.querySelector('.nav-dropdown-toggle');
+        if (top) {
+          pushLink(
+            top.getAttribute('href'),
+            top.textContent,
+            top.classList.contains('active') || top.getAttribute('aria-current') === 'page'
+          );
+        }
+        node.querySelectorAll('.nav-dropdown-menu a').forEach((sub) => {
+          pushLink(
+            sub.getAttribute('href'),
+            sub.textContent,
+            sub.classList.contains('active') || sub.getAttribute('aria-current') === 'page'
+          );
+        });
+      });
+
+      mobilePrimaryLinks.innerHTML = links
+        .map(
+          (item) =>
+            `<a href="${item.href}"${item.active ? ' class="active" aria-current="page"' : ''}>${item.label}</a>`
+        )
+        .join('');
+    };
+    buildMobileFlatLinks();
 
     const closeDropdowns = () => {
       navDropdowns.forEach((dd) => dd.classList.remove('open'));
@@ -56,27 +107,15 @@
 
     menuButton.addEventListener('click', toggleMenu);
 
-    navDropdowns.forEach((dropdown) => {
-      const toggle = dropdown.querySelector('.nav-dropdown-toggle');
-      if (!toggle) return;
-      toggle.addEventListener('click', (event) => {
-        if (!mobileQuery.matches) return;
-        if (!taskbar.classList.contains('menu-open')) return;
-        const alreadyOpen = dropdown.classList.contains('open');
-        if (!alreadyOpen) {
-          event.preventDefault();
-          closeDropdowns();
-          dropdown.classList.add('open');
-          return;
-        }
-        closeDropdowns();
-      });
-    });
-
     taskLinks.addEventListener('click', (event) => {
       const clickedLink = event.target.closest('a');
       if (!clickedLink || !mobileQuery.matches) return;
-      if (clickedLink.classList.contains('nav-dropdown-toggle')) return;
+      closeMenu();
+    });
+
+    mobilePrimaryLinks.addEventListener('click', (event) => {
+      const clickedLink = event.target.closest('a');
+      if (!clickedLink || !mobileQuery.matches) return;
       closeMenu();
     });
 

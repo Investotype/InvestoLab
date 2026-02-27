@@ -4349,6 +4349,33 @@ footer {
     transform: translateX(0);
   }
 
+  .taskbar.taskbar-mobile-flat.menu-open .task-links {
+    display: none !important;
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  .mobile-primary-links a {
+    text-decoration: none;
+    color: #0f172a;
+    border: 1px solid #d8e5f5;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    border-radius: 8px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .mobile-primary-links a.active {
+    color: #fff;
+    border-color: var(--brand);
+    background: var(--brand);
+  }
+
   .nav-dropdown:hover .nav-dropdown-menu,
   .nav-dropdown:focus-within .nav-dropdown-menu {
     display: none;
