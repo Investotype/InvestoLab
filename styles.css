@@ -70,11 +70,20 @@ body {
   padding: 0.35rem;
   cursor: pointer;
   box-shadow: none;
-  transition: color 180ms ease;
+  outline: none;
+  transition: none;
 }
 
 .taskbar-menu-toggle:hover {
-  color: var(--brand);
+  color: #0f172a;
+}
+
+.taskbar-menu-toggle:active,
+.taskbar-menu-toggle:focus,
+.taskbar-menu-toggle:focus-visible {
+  color: #0f172a;
+  outline: none;
+  box-shadow: none;
 }
 
 .taskbar-menu-toggle .burger-icon {
@@ -4308,6 +4317,17 @@ footer {
     width: 100%;
     grid-template-columns: 1fr;
     gap: 0.35rem;
+    opacity: 0;
+    transform: translateX(18px);
+    transition: transform 220ms ease, opacity 220ms ease;
+    transform-origin: right top;
+  }
+
+  .mobile-primary-links {
+    opacity: 0;
+    transform: translateX(18px);
+    transition: transform 220ms ease, opacity 220ms ease;
+    transform-origin: right top;
   }
 
   .taskbar.menu-open .mobile-primary-links {
@@ -4315,6 +4335,8 @@ footer {
     grid-template-columns: 1fr;
     gap: 0.35rem;
     margin-bottom: 0.1rem;
+    opacity: 1;
+    transform: translateX(0);
   }
 
   .taskbar.menu-open {
@@ -4323,6 +4345,8 @@ footer {
 
   .taskbar.menu-open .task-links {
     display: grid;
+    opacity: 1;
+    transform: translateX(0);
   }
 
   .nav-dropdown:hover .nav-dropdown-menu,
@@ -5577,6 +5601,55 @@ footer {
   font-size: 0.74rem;
   color: #64748b;
   margin-top: 0.06rem;
+}
+
+@media (max-width: 640px) {
+  .valuation-page #investmentValuationForm > label {
+    grid-template-columns: 1fr;
+    row-gap: 0.22rem;
+  }
+
+  .valuation-page #investmentValuationForm > button[type='submit'] {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .single-layout,
+  .single-layout > *,
+  .feature-home-grid,
+  .news-home-grid,
+  .card,
+  .home-card,
+  .valuation-card,
+  .valuation-result,
+  .valuation-hero,
+  .valuation-rec-card,
+  .portfolio-add-tool,
+  .portfolio-added-item,
+  .portfolio-row,
+  .portfolio-added-main,
+  .portfolio-added-actions,
+  .search-wrap,
+  .search-wrap input,
+  input,
+  select,
+  textarea,
+  button,
+  .cta-link {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .home-card .cta-link {
+    width: 100%;
+  }
+
+  .valuation-rec-card {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 880px) {
