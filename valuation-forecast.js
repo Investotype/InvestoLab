@@ -73,8 +73,9 @@ function getIntervalMeta(intervalRaw) {
 
 function getHorizonBounds(intervalMeta) {
   const perYear = Number(intervalMeta?.periodsPerYear || 12);
+  const minUnits = intervalMeta?.key === 'monthly' ? perYear : 1;
   return {
-    min: perYear,
+    min: minUnits,
     max: perYear * 10,
     step: 1
   };
@@ -83,16 +84,18 @@ function getHorizonBounds(intervalMeta) {
 function getCurrentHorizonYears() {
   const prevInterval = String(forecastYearsInput?.dataset.intervalKey || 'monthly');
   const prevMeta = getIntervalMeta(prevInterval);
+  const bounds = getHorizonBounds(prevMeta);
   const units = Number(forecastYearsInput?.value || 0);
-  return clamp(units / prevMeta.periodsPerYear, 1, 10);
+  return clamp(units / prevMeta.periodsPerYear, bounds.min / prevMeta.periodsPerYear, 10);
 }
 
 function applyHorizonConfig(intervalRaw, preserveYears = true) {
   if (!forecastYearsInput || !forecastYearsRange) return;
   const intervalMeta = getIntervalMeta(intervalRaw);
   const bounds = getHorizonBounds(intervalMeta);
+  const minYears = bounds.min / intervalMeta.periodsPerYear;
   const years = preserveYears ? getCurrentHorizonYears() : 3;
-  const units = Math.round(clamp(years, 1, 10) * intervalMeta.periodsPerYear);
+  const units = Math.round(clamp(years, minYears, 10) * intervalMeta.periodsPerYear);
 
   forecastYearsInput.min = String(bounds.min);
   forecastYearsInput.max = String(bounds.max);
@@ -104,7 +107,7 @@ function applyHorizonConfig(intervalRaw, preserveYears = true) {
   setControlValue(forecastYearsInput, forecastYearsRange, units);
 
   if (forecastHorizonHelp) {
-    forecastHorizonHelp.textContent = `${intervalMeta.unitLabel}s to project (about 1 to 10 years).`;
+    forecastHorizonHelp.textContent = `${intervalMeta.unitLabel}s to project (${bounds.min} to ${bounds.max} ${intervalMeta.unitLabel.toLowerCase()}s).`;
   }
 }
 
@@ -416,7 +419,12 @@ function applyAiPreset(preset) {
   }
 
   const intervalMeta = getIntervalMeta(forecastIntervalSelect?.value);
-  setControlValue(forecastYearsInput, forecastYearsRange, Math.round(clamp(years, 1, 10) * intervalMeta.periodsPerYear));
+  const horizonBounds = getHorizonBounds(intervalMeta);
+  setControlValue(
+    forecastYearsInput,
+    forecastYearsRange,
+    Math.round(clamp(years, horizonBounds.min / intervalMeta.periodsPerYear, 10) * intervalMeta.periodsPerYear)
+  );
   setControlValue(forecastPathsInput, forecastPathsRange, Math.round(clamp(paths, 100, 3000)));
   setControlValue(forecastDriftInput, forecastDriftRange, clamp(mu, -0.3, 0.4) * 100);
   setControlValue(forecastVolInput, forecastVolRange, clamp(sigma, 0.05, 1.5) * 100);
@@ -499,9 +507,8 @@ async function handlePresetClick(preset) {
 
 function runSimulation(base, settings) {
   const intervalMeta = getIntervalMeta(settings.interval);
-  const horizonUnits = Math.round(
-    clamp(settings.horizonUnits, intervalMeta.periodsPerYear, intervalMeta.periodsPerYear * 10)
-  );
+  const horizonBounds = getHorizonBounds(intervalMeta);
+  const horizonUnits = Math.round(clamp(settings.horizonUnits, horizonBounds.min, horizonBounds.max));
   const years = horizonUnits / intervalMeta.periodsPerYear;
   const steps = horizonUnits;
   const requestedPaths = Math.round(clamp(settings.paths, 100, 3000));
