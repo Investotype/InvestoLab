@@ -51,7 +51,6 @@
         }
         if (!(node.classList && node.classList.contains('nav-dropdown'))) return;
         const top = node.querySelector('.nav-dropdown-toggle');
-        const topLabel = String(top?.textContent || '').trim();
         if (top) {
           pushLink(
             top.getAttribute('href'),
@@ -59,16 +58,6 @@
             top.classList.contains('active') || top.getAttribute('aria-current') === 'page'
           );
         }
-        const subLinks = [...node.querySelectorAll('.nav-dropdown-menu a')];
-        subLinks.forEach((a) => {
-          const subLabel = String(a.textContent || '').trim();
-          const label = topLabel ? `${topLabel}: ${subLabel}` : subLabel;
-          pushLink(
-            a.getAttribute('href'),
-            label,
-            a.classList.contains('active') || a.getAttribute('aria-current') === 'page'
-          );
-        });
       });
 
       mobilePrimaryLinks.innerHTML = links
