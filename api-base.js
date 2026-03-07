@@ -431,7 +431,8 @@
       apiPath.startsWith('/api/assets/price') ||
       apiPath.startsWith('/api/valuation/investment') ||
       apiPath.startsWith('/api/valuation/portfolio') ||
-      apiPath.startsWith('/api/news/investment-of-day')
+      apiPath.startsWith('/api/news/investment-of-day') ||
+      apiPath.startsWith('/api/news/company-insight')
     );
   }
 
@@ -610,23 +611,49 @@
     return { quotes, news: [] };
   }
 
-  async function yahooChart(symbol, _range = '3y', _interval = '1d') {
+  async function yahooChart(symbol, range = '3y', interval = '1d') {
     const sym = normalizeSymbol(symbol || 'SPY');
-    const seed = symbolSeed(sym);
-    const drift = ((seed % 9) - 4) * 0.00008 + 0.00055;
-    const vol = 0.007 + ((seed % 7) * 0.0015);
-    const start = 70 + (seed % 160);
-    const rows = syntheticSeries(addDaysIso(toIsoDate(), -420), 420, start, drift, vol);
-    return {
-      chart: {
-        result: [
-          {
-            timestamp: rows.map((r) => Math.floor(Date.parse(`${r.date}T00:00:00Z`) / 1000)),
-            indicators: { quote: [{ close: rows.map((r) => r.close) }] }
-          }
-        ]
+    const safeRange = String(range || '3y').trim() || '3y';
+    const safeInterval = String(interval || '1d').trim() || '1d';
+
+    const tryRemote = async (host) => {
+      const url = `https://${host}/v8/finance/chart/${encodeURIComponent(sym)}?range=${encodeURIComponent(
+        safeRange
+      )}&interval=${encodeURIComponent(safeInterval)}&includePrePost=false&events=div,splits`;
+      const response = await rawFetch(url, { cache: 'no-store' });
+      const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+      if (!response.ok || !contentType.includes('application/json')) {
+        throw new Error(`Yahoo chart failed (${response.status || 'unknown'})`);
       }
+      const data = await response.json();
+      const rows = extractHistory(data);
+      if (!rows.length) throw new Error('Yahoo chart returned no rows.');
+      return data;
     };
+
+    try {
+      return await tryRemote('query1.finance.yahoo.com');
+    } catch (_error1) {
+      try {
+        return await tryRemote('query2.finance.yahoo.com');
+      } catch (_error2) {
+        const seed = symbolSeed(sym);
+        const drift = ((seed % 9) - 4) * 0.00008 + 0.00055;
+        const vol = 0.007 + ((seed % 7) * 0.0015);
+        const start = 70 + (seed % 160);
+        const rows = syntheticSeries(addDaysIso(toIsoDate(), -420), 420, start, drift, vol);
+        return {
+          chart: {
+            result: [
+              {
+                timestamp: rows.map((r) => Math.floor(Date.parse(`${r.date}T00:00:00Z`) / 1000)),
+                indicators: { quote: [{ close: rows.map((r) => r.close) }] }
+              }
+            ]
+          }
+        };
+      }
+    }
   }
 
   async function resolveSymbol(query) {
@@ -710,6 +737,7 @@
         title: String(n.title || '').trim(),
         publisher: n.publisher || 'Yahoo Finance',
         date: n.providerPublishTime ? toIsoDate(Number(n.providerPublishTime) * 1000) : '',
+        url: String(n.link || n?.clickThroughUrl?.url || '').trim(),
         symbol: normalizeSymbol(symbol)
       })).filter((x) => x.title);
     } catch (_error) {
@@ -927,7 +955,8 @@
       const last = history[history.length - 1];
       const price = Number(last.close || 0);
       const rawValue = Number(h?.value || 0);
-      const mode = String(h?.mode || 'dollars');
+      const rawMode = String(h?.mode || 'dollars').trim().toLowerCase();
+      const mode = rawMode === 'unit' || rawMode === 'units' ? 'units' : 'dollars';
       const marketValue = mode === 'units' ? rawValue * price : rawValue;
       if (!(marketValue > 0)) continue;
       const d90 = trailingReturn(history, 90);
@@ -1032,6 +1061,113 @@
       symbol: pick,
       investment,
       alternatives: MARKET_NEWS_SYMBOLS.filter((s) => s !== pick).slice(0, 4)
+    };
+  }
+
+  function companyTendencyLabel(ret30, ret90, ret252, newsSentiment) {
+    const d30 = Number.isFinite(Number(ret30)) ? Number(ret30) : 0;
+    const d90 = Number.isFinite(Number(ret90)) ? Number(ret90) : 0;
+    const d252 = Number.isFinite(Number(ret252)) ? Number(ret252) : 0;
+    const news = Number.isFinite(Number(newsSentiment)) ? Number(newsSentiment) : 0;
+    if (d30 > 0.04 && d90 > 0.08 && news >= -0.05) return 'Uptrend with positive momentum';
+    if (d30 < -0.04 && d90 < -0.08 && news <= 0.05) return 'Downtrend with sustained weakness';
+    if (Math.abs(d30) < 0.02 && Math.abs(d90) < 0.04) return 'Sideways / consolidation';
+    if (d30 > 0 && d90 < 0) return 'Short-term rebound inside a broader weak trend';
+    if (d30 < 0 && d90 > 0) return 'Short-term pullback after prior strength';
+    if (d252 > 0.15 && d30 >= -0.02) return 'Long-term bullish trend with normal volatility';
+    if (d252 < -0.15 && d30 <= 0.02) return 'Long-term bearish trend with fragile sentiment';
+    return 'Mixed trend';
+  }
+
+  async function buildCompanyInsight(query, asOfDateRaw) {
+    const queryText = String(query || '').trim();
+    if (!queryText) throw new Error('query is required');
+    const asOfDate = String(asOfDateRaw || toIsoDate()).trim() || toIsoDate();
+    const investment = await buildInvestmentValuation(queryText, asOfDate);
+    const benchmarkSymbols = ['SPY', 'QQQ'];
+    const benchmark = [];
+    for (const symbol of benchmarkSymbols) {
+      const chart = await yahooChart(symbol, '1y', '1d').catch(() => null);
+      const rows = extractHistory(chart || {});
+      benchmark.push({
+        symbol,
+        d30: trailingReturn(rows, 30),
+        d90: trailingReturn(rows, 90),
+        d252: trailingReturn(rows, 252)
+      });
+    }
+
+    const m = investment?.market || {};
+    const s = investment?.signals || {};
+    const d30 = Number(m?.trailingReturns?.d30 || 0);
+    const d90 = Number(m?.trailingReturns?.d90 || 0);
+    const d252 = Number(m?.trailingReturns?.d252 || 0);
+    const tendency = companyTendencyLabel(d30, d90, d252, s?.newsSentiment);
+    const spy = benchmark.find((b) => b.symbol === 'SPY') || {};
+    const qqq = benchmark.find((b) => b.symbol === 'QQQ') || {};
+    const rel30Spy = Number.isFinite(Number(spy?.d30)) ? d30 - Number(spy.d30) : null;
+    const rel90Qqq = Number.isFinite(Number(qqq?.d90)) ? d90 - Number(qqq.d90) : null;
+
+    const reasons = [
+      `Price tendency is "${tendency}" based on 30D/90D/1Y return structure.`,
+      `Momentum profile: 30D ${(d30 * 100).toFixed(1)}%, 90D ${(d90 * 100).toFixed(1)}%, 1Y ${(d252 * 100).toFixed(1)}%.`,
+      `Sentiment profile: news ${(Number(s?.newsSentiment || 0) * 100).toFixed(0)}, social ${(Number(s?.socialSentiment || 0) * 100).toFixed(0)}, confidence ${(Number(s?.sentimentConfidence || 0) * 100).toFixed(0)}.`
+    ];
+    if (rel30Spy != null) reasons.push(`Relative strength vs SPY (30D): ${(rel30Spy * 100).toFixed(1)} percentage points.`);
+    if (rel90Qqq != null) reasons.push(`Relative strength vs QQQ (90D): ${(rel90Qqq * 100).toFixed(1)} percentage points.`);
+    reasons.push(
+      `Risk context: annualized volatility ${(Number(m?.annualizedVolatility || 0) * 100).toFixed(1)}%, max drawdown ${(Number(
+        m?.maxDrawdown1Y || 0
+      ) * 100).toFixed(1)}%.`
+    );
+    reasons.push(
+      `Model recommendation: ${String(investment?.valuation?.recommendation?.action || 'HOLD')} (${(
+        Number(investment?.valuation?.recommendation?.confidence || 0) * 100
+      ).toFixed(0)}% confidence).`
+    );
+
+    let headlines = Array.isArray(s?.headlines) ? s.headlines.slice(0, 12) : [];
+    if (!headlines.length) {
+      const extra = await getNewsHeadlines(investment.symbol, 8).catch(() => []);
+      const seen = new Set();
+      headlines = (Array.isArray(extra) ? extra : []).filter((h) => {
+        const key = String(h?.title || '').trim().toLowerCase();
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      }).slice(0, 12);
+    }
+
+    const sourcesUsed = (Array.isArray(headlines) ? headlines : [])
+      .map((h) => ({
+        title: String(h?.title || '').trim(),
+        url: String(h?.url || h?.link || '').trim(),
+        publisher: String(h?.publisher || '').trim(),
+        date: String(h?.date || '').trim(),
+        provider: 'yahoo-search'
+      }))
+      .filter((x) => x.title);
+
+    return {
+      ok: true,
+      asOfDate,
+      company: {
+        symbol: investment.symbol,
+        displayName: investment.displayName
+      },
+      market: m,
+      signals: s,
+      valuation: investment.valuation,
+      benchmark,
+      headlines,
+      sourcesUsed,
+      summary: {
+        tendency,
+        overview:
+          `${investment.displayName} (${investment.symbol}) shows ${tendency.toLowerCase()}, ` +
+          'with the current move explained by momentum, sentiment tone, and benchmark-relative strength.',
+        reasons
+      }
     };
   }
 
@@ -1754,6 +1890,16 @@
       }
       if (url.startsWith('/api/news/market')) {
         const data = await buildMarketNews(MARKET_NEWS_SYMBOLS);
+        return jsonResponse(data);
+      }
+      if (url.startsWith('/api/news/company-insight')) {
+        const q = url.match(/[?&]query=([^&]+)/i);
+        const s = url.match(/[?&]symbol=([^&]+)/i);
+        const d = url.match(/[?&]date=([^&]+)/i);
+        const query = decodeURIComponent((q?.[1] || s?.[1] || '').trim());
+        if (!query) return jsonErrorResponse('query is required', 400);
+        const asOfDate = decodeURIComponent((d?.[1] || '').trim());
+        const data = await buildCompanyInsight(query, asOfDate || toIsoDate());
         return jsonResponse(data);
       }
       if (url.startsWith('/api/news/tailored')) {

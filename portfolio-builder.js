@@ -54,6 +54,27 @@ function fmtNum(v, digits = 2) {
   return Number(v).toFixed(digits);
 }
 
+function normalizeAmountMode(rawMode) {
+  const mode = String(rawMode || '').trim().toLowerCase();
+  if (mode === 'unit' || mode === 'units') return 'units';
+  return 'dollars';
+}
+
+function parseNumeric(raw, fallback = 0) {
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function parseUnitPriceFromAny(source) {
+  if (!source || typeof source !== 'object') return 0;
+  const candidates = [source.unitPrice, source.unit_price, source.unitprice, source.price];
+  for (const candidate of candidates) {
+    const n = Number(candidate);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return 0;
+}
+
 function escapeHtml(raw) {
   return String(raw || '')
     .replace(/&/g, '&amp;')
@@ -147,8 +168,9 @@ function collectHoldings() {
   return rows
     .map((row) => ({
       query: String(row.dataset.query || '').trim(),
-      mode: String(row.dataset.mode || 'dollars'),
-      value: Number(row.dataset.value || 0)
+      mode: normalizeAmountMode(row.dataset.mode),
+      value: Math.max(0, parseNumeric(row.dataset.value, 0)),
+      unitPrice: parseUnitPriceFromAny(row.dataset)
     }))
     .filter((h) => h.query && Number.isFinite(h.value) && h.value > 0);
 }
@@ -180,16 +202,16 @@ function renderBriefSummary() {
 }
 
 function parseCardValue(card) {
-  return Math.max(0, Number(card?.dataset?.value || 0));
+  return Math.max(0, parseNumeric(card?.dataset?.value, 0));
 }
 
 function parseCardUnitPrice(card) {
-  return Math.max(0, Number(card?.dataset?.unitPrice || 0));
+  return Math.max(0, parseUnitPriceFromAny(card?.dataset || {}));
 }
 
 function refreshHoldingCardView(card) {
   if (!card) return;
-  const mode = String(card.dataset.mode || 'dollars');
+  const mode = normalizeAmountMode(card.dataset.mode);
   const value = parseCardValue(card);
   const unitPrice = parseCardUnitPrice(card);
   const dollarValue = mode === 'units' ? (unitPrice > 0 ? value * unitPrice : null) : value;
@@ -197,16 +219,18 @@ function refreshHoldingCardView(card) {
 
   const dollarEl = card.querySelector('[data-card-dollar]');
   const unitEl = card.querySelector('[data-card-unit]');
+  const unitPriceEl = card.querySelector('[data-card-unit-price]');
   if (dollarEl) dollarEl.textContent = `Dollar Value: ${dollarValue == null ? 'N/A' : fmtMoney(dollarValue)}`;
   if (unitEl) unitEl.textContent = `Unit Value: ${unitValue == null ? 'N/A' : fmtNum(unitValue, 2)} units`;
+  if (unitPriceEl) unitPriceEl.textContent = `Unit Price: ${unitPrice > 0 ? `${fmtMoney(unitPrice)} / unit` : 'N/A'}`;
 }
 
 function renderAddedHoldingCard(seed) {
   const query = String(seed.query || '').trim();
   const fullName = String(seed.fullName || '').trim();
-  const mode = String(seed.mode || 'dollars');
-  const value = Number(seed.value || 0);
-  const unitPrice = Number(seed.unitPrice || 0);
+  const mode = normalizeAmountMode(seed.mode);
+  const value = Math.max(0, parseNumeric(seed.value, 0));
+  const unitPrice = Math.max(0, parseUnitPriceFromAny(seed));
 
   const card = document.createElement('div');
   card.className = 'portfolio-added-item';
@@ -221,6 +245,7 @@ function renderAddedHoldingCard(seed) {
       <div class="portfolio-added-details">
         <strong class="portfolio-added-name" data-card-name>${escapeHtml(fullName || query)}</strong>
         <div class="portfolio-added-meta" data-card-symbol>${escapeHtml(query)}</div>
+        <div class="portfolio-added-meta" data-card-unit-price>Unit Price: -</div>
         <div class="portfolio-added-meta" data-card-dollar>Dollar Value: -</div>
         <div class="portfolio-added-meta" data-card-unit>Unit Value: -</div>
       </div>
@@ -238,7 +263,7 @@ function renderAddedHoldingCard(seed) {
   const changeValue = (direction) => {
     const current = parseCardValue(card);
     const unitPrice = parseCardUnitPrice(card);
-    const step = card.dataset.mode === 'units' ? 1 : unitPrice > 0 ? unitPrice : 1;
+    const step = normalizeAmountMode(card.dataset.mode) === 'units' ? 1 : unitPrice > 0 ? unitPrice : 1;
     const next = Math.max(0, current + direction * step);
     card.dataset.value = String(next);
     refreshHoldingCardView(card);
@@ -252,7 +277,7 @@ function renderAddedHoldingCard(seed) {
       symbol: card.dataset.query,
       fullName: card.dataset.fullName,
       unitPrice: parseCardUnitPrice(card),
-      initialMode: card.dataset.mode || 'dollars',
+      initialMode: normalizeAmountMode(card.dataset.mode),
       initialValue: parseCardValue(card),
       editCard: card
     });
@@ -355,7 +380,7 @@ function getCurrentValueForSymbol(symbol, unitPrice = null, excludeCard = null) 
   });
   let total = 0;
   for (const row of rows) {
-    const rowMode = String(row.dataset.mode || 'dollars');
+    const rowMode = normalizeAmountMode(row.dataset.mode);
     const rowValue = Number(row.dataset.value || 0);
     if (rowMode === 'dollars') total += rowValue;
     else if (unitPrice && unitPrice > 0) total += rowValue * unitPrice;
@@ -426,9 +451,27 @@ function ensureAddHoldingModal() {
     editCard: null
   };
 
+  const syncUnitsAvailability = () => {
+    if (!modeSelect) return;
+    const unitsOption = modeSelect.querySelector('option[value="units"]');
+    if (unitsOption) unitsOption.disabled = !(state.unitPrice > 0);
+    if (normalizeAmountMode(modeSelect.value) === 'units' && !(state.unitPrice > 0)) {
+      modeSelect.value = 'dollars';
+    }
+  };
+
+  const syncUnitInline = (loading = false) => {
+    if (!unitInline) return;
+    if (loading) {
+      unitInline.textContent = 'Unit Price: Loading...';
+      return;
+    }
+    unitInline.textContent = state.unitPrice ? `Unit Price: ${fmtMoney(state.unitPrice)} / unit` : 'Unit Price: -';
+  };
+
   const getAmountAsDollars = () => {
     const amount = Math.max(0, Number(amountInput?.value || 0));
-    const mode = String(modeSelect?.value || 'dollars');
+    const mode = normalizeAmountMode(modeSelect?.value || 'dollars');
     if (mode === 'units') {
       if (!(state.unitPrice > 0)) return 0;
       return amount * state.unitPrice;
@@ -437,7 +480,7 @@ function ensureAddHoldingModal() {
   };
 
   const getStepSize = () => {
-    const mode = String(modeSelect?.value || 'dollars');
+    const mode = normalizeAmountMode(modeSelect?.value || 'dollars');
     if (mode === 'units') return 1;
     if (state.unitPrice > 0) return Math.max(0.01, Number(state.unitPrice.toFixed(2)));
     return 0.01;
@@ -465,20 +508,18 @@ function ensureAddHoldingModal() {
   const open = ({ symbol, fullName, unitPrice, initialMode = 'dollars', initialValue = null, editCard = null }) => {
     state.symbol = String(symbol || '').trim();
     state.fullName = String(fullName || symbol || '').trim();
-    state.unitPrice = Number.isFinite(Number(unitPrice)) && Number(unitPrice) > 0 ? Number(unitPrice) : null;
+    const parsedUnitPrice = Math.max(0, parseUnitPriceFromAny({ unitPrice }));
+    state.unitPrice = parsedUnitPrice > 0 ? parsedUnitPrice : null;
     state.editCard = editCard || null;
     state.currentValue = getCurrentValueForSymbol(state.symbol, state.unitPrice, state.editCard);
 
     if (titleEl) titleEl.textContent = `Add ${state.symbol} to portfolio`;
     if (currentEl) currentEl.textContent = fmtMoney(state.currentValue);
-    if (unitInline) {
-      unitInline.textContent = state.unitPrice ? `Unit Price: ${fmtMoney(state.unitPrice)} / unit` : 'Unit Price: -';
-    }
+    syncUnitInline();
     if (modeSelect) {
-      const unitsOption = modeSelect.querySelector('option[value="units"]');
-      if (unitsOption) unitsOption.disabled = !(state.unitPrice > 0);
-      modeSelect.value = initialMode === 'units' && state.unitPrice > 0 ? 'units' : 'dollars';
+      modeSelect.value = normalizeAmountMode(initialMode) === 'units' && state.unitPrice > 0 ? 'units' : 'dollars';
     }
+    syncUnitsAvailability();
     if (amountInput) {
       const seed = Number(initialValue);
       const fallback = state.unitPrice ? Number(state.unitPrice) : 100;
@@ -494,6 +535,27 @@ function ensureAddHoldingModal() {
       amountInput?.focus();
       amountInput?.select?.();
     }, 0);
+
+    if (!(state.unitPrice > 0) && state.symbol) {
+      syncUnitInline(true);
+      fetchUnitPrice(state.symbol, todayIso())
+        .then((liveUnitPrice) => {
+          if (!(liveUnitPrice > 0)) return;
+          if (String(state.symbol || '').toUpperCase() !== String(symbol || '').toUpperCase()) return;
+          state.unitPrice = Number(liveUnitPrice);
+          syncUnitInline();
+          syncUnitsAvailability();
+          syncInputStep();
+          updatePlanned();
+          if (state.editCard) {
+            state.editCard.dataset.unitPrice = String(state.unitPrice);
+            refreshHoldingCardView(state.editCard);
+          }
+        })
+        .catch(() => {
+          syncUnitInline();
+        });
+    }
   };
 
   const close = () => {
@@ -503,9 +565,13 @@ function ensureAddHoldingModal() {
 
   const confirm = () => {
     const amount = Math.max(0, Number(Number(amountInput?.value || 0).toFixed(2)));
-    const mode = String(modeSelect?.value || 'dollars');
+    const mode = normalizeAmountMode(modeSelect?.value || 'dollars');
     if (!(amount > 0) || !state.symbol) {
       portfolioStatus.textContent = 'Enter a valid amount.';
+      return;
+    }
+    if (mode === 'units' && !(state.unitPrice > 0)) {
+      portfolioStatus.textContent = 'Unit price unavailable. Switch to USD or try again.';
       return;
     }
     if (state.editCard) {
@@ -543,6 +609,7 @@ function ensureAddHoldingModal() {
     updatePlanned();
   });
   modeSelect?.addEventListener('change', () => {
+    syncUnitsAvailability();
     syncInputStep();
     updatePlanned();
   });
@@ -700,4 +767,3 @@ portfolioAddQueryInput?.addEventListener('blur', () => {
 });
 
 renderBriefSummary();
-
